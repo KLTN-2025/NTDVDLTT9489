@@ -1,563 +1,240 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  Box,
-  Button,
-  IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  InputBase,
-  Paper,
-  CircularProgress,
-  Typography,
-  Grid,
-  Pagination,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
+import { useTheme, Box, FormControl, InputLabel, Select, MenuItem, TextField, Paper, Typography, ToggleButton, ToggleButtonGroup, Button, CircularProgress, useMediaQuery } from "@mui/material";
+import { ResponsiveBar } from "@nivo/bar";
 import { DataGrid } from "@mui/x-data-grid";
-import { useTheme } from "@mui/material";
 import { tokens } from "../../theme";
-import SearchIcon from "@mui/icons-material/Search";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  getContacts,
-  changeContactStatus,
-  getContactDetail,
-  deleteContact,
-} from "./ContactsApi";
-import { useAdminAuth } from "../../context/AdminContext";
+import { getRevenueStatistics } from "./BarApi";
 import { useNavigate } from "react-router-dom";
-import { debounce } from "lodash";
 
-const ContactsControl = () => {
+const BarChart = ({ isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const { adminToken } = useAdminAuth();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
-  const [contacts, setContacts] = useState([]);
-  const [searchText, setSearchText] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [sortOption, setSortOption] = useState("createdAt_desc");
-  const [sortModel, setSortModel] = useState([{ field: "createdAt", sort: "desc" }]);
-  const [openDetail, setOpenDetail] = useState(false);
-  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
-  const [deleteContactId, setDeleteContactId] = useState(null);
-  const [currentContact, setCurrentContact] = useState(null);
+  const [data, setData] = useState([]);
+  const [filterType, setFilterType] = useState("year");
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const limitItems = 10;
+  const [errorMessage, setErrorMessage] = useState("");
+  const [viewType, setViewType] = useState("all");
+  const [statType, setStatType] = useState("revenue");
+  const [showTable, setShowTable] = useState(true);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
+  const [rowCount, setRowCount] = useState(0);
 
-  const fetchContacts = useCallback(
-    async (page = 1, search = "", status = "all", sortKey = "createdAt", sortValue = "desc") => {
+  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+  const months = [
+    { value: "", label: "Tất cả tháng" },
+    { value: 1, label: "Tháng 1" },
+    { value: 2, label: "Tháng 2" },
+    { value: 3, label: "Tháng 3" },
+    { value: 4, label: "Tháng 4" },
+    { value: 5, label: "Tháng 5" },
+    { value: 6, label: "Tháng 6" },
+    { value: 7, label: "Tháng 7" },
+    { value: 8, label: "Tháng 8" },
+    { value: 9, label: "Tháng 9" },
+    { value: 10, label: "Tháng 10" },
+    { value: 11, label: "Tháng 11" },
+    { value: 12, label: "Tháng 12" },
+  ];
+
+  useEffect(() => {
+    const fetchStatistics = async () => {
       setLoading(true);
+      setErrorMessage("");
       try {
         const params = {
-          page,
-          limit: limitItems,
+          status: "paid",
+          page: paginationModel.page + 1,
+          limit: paginationModel.pageSize,
         };
-        if (search) params.search = search;
-        if (status !== "all") params.status = status;
-        if (sortKey) params.sortKey = sortKey;
-        if (sortValue) params.sortValue = sortValue;
-        // console.log("Fetching contacts with params:", params);
-        const response = await getContacts(params);
-        // console.log("fetchContacts response:", response);
-        if (response && Array.isArray(response.users)) {
-          const totalRecords = response.totalRecords || response.users.length;
-          const formattedData = response.users.map((item, index) => {
-            let stt;
-            if (sortKey === "_id" && sortValue === "desc") {
-              stt = totalRecords - ((page - 1) * limitItems + index);
-            } else {
-              stt = (page - 1) * limitItems + index + 1;
+
+        if (filterType === "year") {
+          params.year = selectedYear;
+        } else if (filterType === "month") {
+          params.year = selectedYear;
+          if (selectedMonth) params.month = selectedMonth;
+        } else if (filterType === "range") {
+          if (startDate && endDate) {
+            if (new Date(startDate) > new Date(endDate)) {
+              setErrorMessage("Ngày bắt đầu phải trước ngày kết thúc!");
+              setData([]);
+              setRowCount(0);
+              setLoading(false);
+              toast.error("Ngày bắt đầu phải trước ngày kết thúc!", { position: "top-right" });
+              return;
             }
-            return {
-              ...item,
-              id: item._id,
-              stt,
-              createdAt: new Date(item.createdAt).toLocaleDateString("vi-VN"),
-            };
-          });
-          setContacts(formattedData);
-          setTotalPages(response.totalPage || 1);
-          if (formattedData.length === 0) {
-            toast.info(
-              search
-                ? `Không tìm thấy liên hệ nào với từ khóa "${search}"!`
-                : "Không có liên hệ nào để hiển thị!",
-              { position: "top-right" }
-            );
+            params.startDate = startDate;
+            params.endDate = endDate;
+          } else {
+            setErrorMessage("Vui lòng chọn cả ngày bắt đầu và ngày kết thúc!");
+            setData([]);
+            setRowCount(0);
+            setLoading(false);
+            toast.error("Vui lòng chọn cả ngày bắt đầu và ngày kết thúc!", { position: "top-right" });
+            return;
+          }
+        }
+
+        // console.log("Sending request with params:", params);
+        const response = await getRevenueStatistics(params);
+        // console.log("API Response:", response);
+
+        if (response.code === 200 && Array.isArray(response.data)) {
+          if (response.data.length === 0) {
+            setErrorMessage(`Không có dữ liệu thống kê cho ${filterType === "year" ? `năm ${selectedYear}` : filterType === "month" ? `tháng ${selectedMonth || "tất cả"} năm ${selectedYear}` : `khoảng thời gian từ ${startDate} đến ${endDate}`}.`);
+            setData([]);
+            setRowCount(0);
+            toast.info(`Không có dữ liệu thống kê cho ${filterType === "year" ? `năm ${selectedYear}` : filterType === "month" ? `tháng ${selectedMonth || "tất cả"} năm ${selectedYear}` : `khoảng thời gian từ ${startDate} đến ${endDate}`}.`, { position: "top-right" });
+          } else {
+            const formattedData = response.data
+              .map((item, index) => {
+                if (!item.month || !isFinite(item.totalPrice)) {
+                  console.warn("Dữ liệu không hợp lệ:", item);
+                  return null;
+                }
+                return {
+                  id: `${item.month}-${index}`,
+                  month: item.month,
+                  tours: Number(item.tours) || 0,
+                  hotels: Number(item.hotels) || 0,
+                  totalPrice: Number(item.totalPrice) || 0,
+                  tourRevenue: Number(item.tourRevenue) || 0,
+                  hotelRevenue: Number(item.hotelRevenue) || 0,
+                };
+              })
+              .filter((item) => item !== null);
+
+            // console.log("Formatted Data:", formattedData);
+            setData(formattedData);
+            setRowCount(response.totalItems || formattedData.length);
+            if (formattedData.length === 0) {
+              setErrorMessage(`Không có dữ liệu hợp lệ cho ${filterType === "year" ? `năm ${selectedYear}` : filterType === "month" ? `tháng ${selectedMonth || "tất cả"} năm ${selectedYear}` : `khoảng thời gian từ ${startDate} đến ${endDate}`}.`);
+              toast.info(`Không có dữ liệu hợp lệ cho ${filterType === "year" ? `năm ${selectedYear}` : filterType === "month" ? `tháng ${selectedMonth || "tất cả"} năm ${selectedYear}` : `khoảng thời gian từ ${startDate} đến ${endDate}`}.`, { position: "top-right" });
+            }
           }
         } else {
-          setError("Dữ liệu liên hệ không hợp lệ!");
-          toast.error("Dữ liệu liên hệ không hợp lệ!", { position: "top-right" });
-          setContacts([]);
-          setTotalPages(1);
+          setErrorMessage(`Lỗi API: Mã ${response.code || "không xác định"}.`);
+          setData([]);
+          setRowCount(0);
+          toast.error(`Lỗi API: ${response.message || "Không xác định"}`, { position: "top-right" });
         }
-      } catch (err) {
-        const errorMessage = err.response?.data?.message || "Không thể tải danh sách liên hệ!";
-        setError(errorMessage);
-        toast.error(errorMessage, { position: "top-right" });
-        console.error("Fetch contacts error:", err.response?.data);
-        if (err.response?.status === 401) {
+      } catch (error) {
+        // console.error("Lỗi khi lấy dữ liệu thống kê:", error);
+        const errorMsg = error.response?.data?.message || `Lỗi kết nối API: ${error.message}`;
+        setErrorMessage(errorMsg);
+        setData([]);
+        setRowCount(0);
+        toast.error(errorMsg, { position: "top-right" });
+        if (error.response?.status === 401) {
           toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
           localStorage.removeItem("adminToken");
           navigate("/loginadmin");
         }
-        setContacts([]);
-        setTotalPages(1);
       } finally {
         setLoading(false);
       }
-    },
-    [adminToken, navigate, limitItems]
-  );
+    };
+    fetchStatistics();
+  }, [filterType, selectedYear, selectedMonth, startDate, endDate, paginationModel, navigate]);
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce((value, status, sortKey, sortValue) => {
-      setCurrentPage(1);
-      fetchContacts(1, value, status, sortKey, sortValue);
-    }, 500),
-    [fetchContacts]
-  );
+  const getChartConfig = () => {
+    let keys = [];
+    let barColors = [];
+    let legendLabels = [];
 
-  useEffect(() => {
-    const token = adminToken || localStorage.getItem("adminToken");
-    if (token) {
-      fetchContacts(currentPage, searchText, statusFilter);
-    } else {
-      toast.error("Vui lòng đăng nhập để tiếp tục!", { position: "top-right" });
-      setTimeout(() => {
-        navigate("/loginadmin");
-      }, 2000);
-    }
-  }, [adminToken, navigate, fetchContacts]);
-
-  const handleSearchTextChange = (e) => {
-    const value = e.target.value;
-    setSearchText(value);
-    let sortKey = "";
-    let sortValue = "";
-    switch (sortOption) {
-      case "stt_asc":
-        sortKey = "_id";
-        sortValue = "asc";
-        break;
-      case "stt_desc":
-        sortKey = "_id";
-        sortValue = "desc";
-        break;
-      case "fullName_asc":
-        sortKey = "fullName";
-        sortValue = "asc";
-        break;
-      case "fullName_desc":
-        sortKey = "fullName";
-        sortValue = "desc";
-        break;
-      case "email_asc":
-        sortKey = "email";
-        sortValue = "asc";
-        break;
-      case "email_desc":
-        sortKey = "email";
-        sortValue = "desc";
-        break;
-      case "phone_asc":
-        sortKey = "phone";
-        sortValue = "asc";
-        break;
-      case "phone_desc":
-        sortKey = "phone";
-        sortValue = "desc";
-        break;
-      case "createdAt_asc":
-        sortKey = "createdAt";
-        sortValue = "asc";
-        break;
-      case "createdAt_desc":
-        sortKey = "createdAt";
-        sortValue = "desc";
-        break;
-      default:
-        sortKey = "createdAt";
-        sortValue = "desc";
-        break;
-    }
-    debouncedSearch(value, statusFilter, sortKey, sortValue);
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    handleSearchTextChange({ target: { value: searchText } });
-  };
-
-  const handleStatusFilterChange = (event) => {
-    const newStatus = event.target.value;
-    setStatusFilter(newStatus);
-    setCurrentPage(1);
-    let sortKey = "";
-    let sortValue = "";
-    switch (sortOption) {
-      case "stt_asc":
-        sortKey = "_id";
-        sortValue = "asc";
-        break;
-      case "stt_desc":
-        sortKey = "_id";
-        sortValue = "desc";
-        break;
-      case "fullName_asc":
-        sortKey = "fullName";
-        sortValue = "asc";
-        break;
-      case "fullName_desc":
-        sortKey = "fullName";
-        sortValue = "desc";
-        break;
-      case "email_asc":
-        sortKey = "email";
-        sortValue = "asc";
-        break;
-      case "email_desc":
-        sortKey = "email";
-        sortValue = "desc";
-        break;
-      case "phone_asc":
-        sortKey = "phone";
-        sortValue = "asc";
-        break;
-      case "phone_desc":
-        sortKey = "phone";
-        sortValue = "desc";
-        break;
-      case "createdAt_asc":
-        sortKey = "createdAt";
-        sortValue = "asc";
-        break;
-      case "createdAt_desc":
-        sortKey = "createdAt";
-        sortValue = "desc";
-        break;
-      default:
-        sortKey = "createdAt";
-        sortValue = "desc";
-        break;
-    }
-    fetchContacts(1, searchText, newStatus, sortKey, sortValue);
-  };
-
-  const handleSortChange = (event) => {
-    const value = event.target.value;
-    setSortOption(value);
-    setCurrentPage(1);
-    let sortKey = "";
-    let sortValue = "";
-    let sortField = "";
-    switch (value) {
-      case "stt_asc":
-        sortKey = "_id";
-        sortValue = "asc";
-        sortField = "stt";
-        break;
-      case "stt_desc":
-        sortKey = "_id";
-        sortValue = "desc";
-        sortField = "stt";
-        break;
-      case "fullName_asc":
-        sortKey = "fullName";
-        sortValue = "asc";
-        sortField = "fullName";
-        break;
-      case "fullName_desc":
-        sortKey = "fullName";
-        sortValue = "desc";
-        sortField = "fullName";
-        break;
-      case "email_asc":
-        sortKey = "email";
-        sortValue = "asc";
-        sortField = "email";
-        break;
-      case "email_desc":
-        sortKey = "email";
-        sortValue = "desc";
-        sortField = "email";
-        break;
-      case "phone_asc":
-        sortKey = "phone";
-        sortValue = "asc";
-        sortField = "phone";
-        break;
-      case "phone_desc":
-        sortKey = "phone";
-        sortValue = "desc";
-        sortField = "phone";
-        break;
-      case "createdAt_asc":
-        sortKey = "createdAt";
-        sortValue = "asc";
-        sortField = "createdAt";
-        break;
-      case "createdAt_desc":
-        sortKey = "createdAt";
-        sortValue = "desc";
-        sortField = "createdAt";
-        break;
-      default:
-        sortKey = "createdAt";
-        sortValue = "desc";
-        sortField = "createdAt";
-        break;
-    }
-    fetchContacts(1, searchText, statusFilter, sortKey, sortValue);
-    setSortModel([{ field: sortField, sort: sortValue }]);
-  };
-
-  const handleSortModelChange = (newSortModel) => {
-    setSortModel(newSortModel);
-    setCurrentPage(1);
-    if (newSortModel.length > 0) {
-      const { field, sort } = newSortModel[0];
-      let sortKey = "";
-      let sortOptionValue = "";
-      switch (field) {
-        case "stt":
-          sortKey = "_id";
-          sortOptionValue = sort === "asc" ? "stt_asc" : "stt_desc";
-          break;
-        case "fullName":
-          sortKey = "fullName";
-          sortOptionValue = sort === "asc" ? "fullName_asc" : "fullName_desc";
-          break;
-        case "email":
-          sortKey = "email";
-          sortOptionValue = sort === "asc" ? "email_asc" : "email_desc";
-          break;
-        case "phone":
-          sortKey = "phone";
-          sortOptionValue = sort === "asc" ? "phone_asc" : "phone_desc";
-          break;
-        case "createdAt":
-          sortKey = "createdAt";
-          sortOptionValue = sort === "asc" ? "createdAt_asc" : "createdAt_desc";
-          break;
-        default:
-          break;
-      }
-      if (sortKey) {
-        setSortOption(sortOptionValue);
-        fetchContacts(1, searchText, statusFilter, sortKey, sort);
-      }
-    } else {
-      setSortOption("createdAt_desc");
-      fetchContacts(1, searchText, statusFilter, "createdAt", "desc");
-    }
-  };
-
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value);
-    let sortKey = "";
-    let sortValue = "";
-    switch (sortOption) {
-      case "stt_asc":
-        sortKey = "_id";
-        sortValue = "asc";
-        break;
-      case "stt_desc":
-        sortKey = "_id";
-        sortValue = "desc";
-        break;
-      case "fullName_asc":
-        sortKey = "fullName";
-        sortValue = "asc";
-        break;
-      case "fullName_desc":
-        sortKey = "fullName";
-        sortValue = "desc";
-        break;
-      case "email_asc":
-        sortKey = "email";
-        sortValue = "asc";
-        break;
-      case "email_desc":
-        sortKey = "email";
-        sortValue = "desc";
-        break;
-      case "phone_asc":
-        sortKey = "phone";
-        sortValue = "asc";
-        break;
-      case "phone_desc":
-        sortKey = "phone";
-        sortValue = "desc";
-        break;
-      case "createdAt_asc":
-        sortKey = "createdAt";
-        sortValue = "asc";
-        break;
-      case "createdAt_desc":
-        sortKey = "createdAt";
-        sortValue = "desc";
-        break;
-      default:
-        sortKey = "createdAt";
-        sortValue = "desc";
-        break;
-    }
-    fetchContacts(value, searchText, statusFilter, sortKey, sortValue);
-  };
-
-  const handleOpenDetail = async (contact) => {
-    setLoading(true);
-    try {
-      const response = await getContactDetail(contact._id);
-      if (response.code === 200) {
-        setCurrentContact(response.data);
-        setOpenDetail(true);
+    if (viewType === "all") {
+      if (statType === "quantity") {
+        keys = ["tours", "hotels"];
+        barColors = [colors.blueAccent[400], colors.greenAccent[400]];
+        legendLabels = ["SL Tours", "SL Hotels"];
       } else {
-        toast.error(response.message || "Không thể tải chi tiết liên hệ!", { position: "top-right" });
+        keys = ["tourRevenue", "hotelRevenue"];
+        barColors = [colors.blueAccent[400], colors.greenAccent[400]];
+        legendLabels = ["DT Tours", "DT Hotels"];
       }
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || "Không thể tải chi tiết liên hệ!";
-      toast.error(errorMessage, { position: "top-right" });
-      console.error("Get contact detail error:", err.response?.data);
-    } finally {
-      setLoading(false);
+    } else if (viewType === "tours") {
+      keys = [statType === "quantity" ? "tours" : "tourRevenue"];
+      barColors = [colors.blueAccent[400]];
+      legendLabels = ["Tours"];
+    } else if (viewType === "hotels") {
+      keys = [statType === "quantity" ? "hotels" : "hotelRevenue"];
+      barColors = [colors.greenAccent[400]];
+      legendLabels = ["Hotels"];
     }
+
+    return { keys, barColors, legendLabels };
   };
 
-  const handleCloseDetail = () => {
-    setOpenDetail(false);
-    setCurrentContact(null);
+  const { keys, barColors, legendLabels } = getChartConfig();
+
+  const handleResetFilters = () => {
+    setFilterType("year");
+    setSelectedYear(new Date().getFullYear());
+    setSelectedMonth("");
+    setStartDate("");
+    setEndDate("");
+    setPaginationModel({ page: 0, pageSize: 10 });
+    setErrorMessage("");
   };
 
-  const handleOpenDeleteConfirm = (id) => {
-    setDeleteContactId(id);
-    setOpenDeleteConfirm(true);
-  };
-
-  const handleCloseDeleteConfirm = () => {
-    setOpenDeleteConfirm(false);
-    setDeleteContactId(null);
-  };
-
-  const handleChangeStatus = async (id, currentStatus) => {
-    const newStatus = currentStatus === "active" ? "inactive" : "active";
-    setLoading(true);
-    try {
-      const response = await changeContactStatus(id, newStatus);
-      if (response.code === 200) {
-        fetchContacts(currentPage, searchText, statusFilter);
-        toast.success(`Tài khoản đã được ${newStatus === "active" ? "kích hoạt" : "tạm ngưng"} thành công!`, { position: "top-right" });
-      } else {
-        toast.error(response.message || "Cập nhật trạng thái thất bại!", { position: "top-right" });
-      }
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || "Cập nhật trạng thái thất bại!";
-      toast.error(errorMessage, { position: "top-right" });
-      console.error("Change status error:", err.response?.data);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!deleteContactId) return;
-    setLoading(true);
-    try {
-      const response = await deleteContact(deleteContactId);
-      if (response.code === 200) {
-        fetchContacts(currentPage, searchText, statusFilter);
-        toast.success("Xóa liên hệ thành công!", { position: "top-right" });
-      } else {
-        toast.error(response.message || "Xóa liên hệ thất bại!", { position: "top-right" });
-      }
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || "Xóa liên hệ thất bại!";
-      toast.error(errorMessage, { position: "top-right" });
-      console.error("Delete contact error:", err.response?.data);
-    } finally {
-      setLoading(false);
-      handleCloseDeleteConfirm();
-    }
+  const toggleTableVisibility = () => {
+    setShowTable((prev) => !prev);
   };
 
   const columns = [
-    { field: "stt", headerName: "STT", flex: 0.3, sortable: true },
-    { field: "fullName", headerName: "Tên", flex: 1, sortable: true },
-    { field: "email", headerName: "Email", flex: 1, sortable: true },
-    { field: "phone", headerName: "Số điện thoại", flex: 0.7, sortable: true },
-    { field: "createdAt", headerName: "Ngày tạo", flex: 0.5, sortable: true },
+    { field: "month", headerName: "Tháng", flex: 0.5 },
+    { field: "tours", headerName: "Số lượng Tours", flex: 0.7 },
+    { field: "hotels", headerName: "Số lượng Hotels", flex: 0.7 },
     {
-      field: "status",
-      headerName: "Trạng thái",
-      flex: 0.7,
-      sortable: false,
-      renderCell: ({ row }) => (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%",
-          }}
-        >
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => handleChangeStatus(row._id, row.status)}
-            color={row.status === "active" ? "success" : "warning"}
-            disabled={loading}
-          >
-            {row.status === "active" ? "Hoạt động" : "Tạm ngưng"}
-          </Button>
+      field: "totalPrice",
+      headerName: "",
+      flex: 1,
+      renderCell: (params) => (
+        <Box display="flex" alignItems="center" height="100%">
+          <Typography color={colors.grey[100]}>
+            {Math.round(params.value / 1000).toLocaleString("vi-VN")}
+          </Typography>
         </Box>
       ),
     },
     {
-      field: "actions",
-      headerName: "Hành động",
+      field: "tourRevenue",
+      headerName: "Doanh thu Tours (K VNĐ)",
       flex: 1,
-      sortable: false,
-      renderCell: ({ row }) => (
-        <Box display="flex" gap={1} mt="25px">
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            startIcon={<VisibilityIcon />}
-            onClick={() => handleOpenDetail(row)}
-          >
-            Xem
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            size="small"
-            startIcon={<DeleteIcon />}
-            onClick={() => handleOpenDeleteConfirm(row._id)}
-          >
-            Xóa
-          </Button>
+      renderCell: (params) => (
+        <Box display="flex" alignItems="center" height="100%">
+          <Typography color={colors.grey[100]}>
+            {Math.round(params.value / 1000).toLocaleString("vi-VN")}
+          </Typography>
+        </Box>
+      ),
+    },
+    {
+      field: "hotelRevenue",
+      headerName: "Doanh thu Hotels (K VNĐ)",
+      flex: 1,
+      renderCell: (params) => (
+        <Box display="flex" alignItems="center" height="100%">
+          <Typography color={colors.grey[100]}>
+            {Math.round(params.value / 1000).toLocaleString("vi-VN")}
+          </Typography>
         </Box>
       ),
     },
   ];
 
   return (
-    <Box m="20px">
+    <Box sx={{ p: 2 }}>
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -571,262 +248,379 @@ const ContactsControl = () => {
         theme="light"
         limit={3}
       />
-      <Box sx={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 2 }}>
-        <Box sx={{ gridColumn: "span 12" }}>
-          <Box display="flex" justifyContent="space-between" mb={2}>
-            <Typography variant="h2" color={colors.grey[100]} fontWeight="bold">
-              Quản lý liên hệ
-            </Typography>
-            <Box display="flex" gap={2}>
-              <FormControl sx={{ width: 200 }}>
-                <InputLabel>Sắp xếp</InputLabel>
-                <Select
-                  value={sortOption}
-                  onChange={handleSortChange}
-                  label="Sắp xếp"
-                  sx={{
-                    backgroundColor: colors.primary[400],
-                  }}
-                >
-                  <MenuItem value="stt_asc">STT: Tăng dần</MenuItem>
-                  <MenuItem value="stt_desc">STT: Giảm dần</MenuItem>
-                  <MenuItem value="fullName_asc">Tên: Tăng dần</MenuItem>
-                  <MenuItem value="fullName_desc">Tên: Giảm dần</MenuItem>
-                  <MenuItem value="email_asc">Email: Tăng dần</MenuItem>
-                  <MenuItem value="email_desc">Email: Giảm dần</MenuItem>
-                  <MenuItem value="phone_asc">Số điện thoại: Tăng dần</MenuItem>
-                  <MenuItem value="phone_desc">Số điện thoại: Giảm dần</MenuItem>
-                  <MenuItem value="createdAt_asc">Ngày tạo: Tăng dần</MenuItem>
-                  <MenuItem value="createdAt_desc">Ngày tạo: Giảm dần</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl sx={{ width: 150 }}>
-                <InputLabel>Lọc trạng thái</InputLabel>
-                <Select
-                  value={statusFilter}
-                  onChange={handleStatusFilterChange}
-                  label="Trạng thái"
-                  sx={{
-                    backgroundColor: colors.primary[400],
-                  }}
-                >
-                  <MenuItem value="all">Tất cả</MenuItem>
-                  <MenuItem value="active">Hoạt động</MenuItem>
-                  <MenuItem value="inactive">Tạm ngưng</MenuItem>
-                </Select>
-              </FormControl>
-              <Paper
-                component="form"
-                sx={{
-                  p: "2px 4px",
-                  display: "flex",
-                  alignItems: "center",
-                  width: 300,
-                  backgroundColor: colors.primary[400],
-                }}
-                onSubmit={handleSearch}
+      <Typography variant="h2" sx={{ mb: 3, color: colors.grey[100] }}>
+        Báo cáo doanh thu
+      </Typography>
+
+      <Paper sx={{ p: 2, mb: 2, backgroundColor: colors.primary[400] }}>
+        <Box
+          display="flex"
+          flexDirection={isMobile ? "column" : "row"}
+          alignItems={isMobile ? "stretch" : "center"}
+          justifyContent="space-between"
+          gap={2}
+        >
+          <Box display="flex" flexDirection={isMobile ? "column" : "row"} alignItems={isMobile ? "stretch" : "center"} gap={2}>
+            <FormControl sx={{ minWidth: 150 }}>
+              <InputLabel>Loại báo cáo</InputLabel>
+              <Select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                label="Loại báo cáo"
               >
-                <InputBase
-                  sx={{ ml: 1, flex: 1 }}
-                  placeholder="Tìm kiếm liên hệ (tên, email, số điện thoại)"
-                  value={searchText}
-                  onChange={handleSearchTextChange}
-                />
-                <IconButton type="submit" sx={{ p: "10px" }}>
-                  <SearchIcon />
-                </IconButton>
-              </Paper>
-            </Box>
-          </Box>
-        </Box>
-        <Box sx={{ gridColumn: "span 12" }}>
-          <Box
-            height="75vh"
-            sx={{
-              "& .MuiDataGrid-root": {
-                border: "none",
-                width: "100%",
-              },
-              "& .MuiDataGrid-main": {
-                width: "100%",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "none",
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: colors.blueAccent[700],
-                borderBottom: "none",
-                backgroundColor: colors.blueAccent[700],
-                color: colors.grey[100],
-                fontSize: "14px",
-                fontWeight: "bold",
-              },
-              "& .MuiDataGrid-columnHeader": {
-                backgroundColor: colors.blueAccent[700],
-                color: colors.grey[100],
-                fontSize: "14px",
-                fontWeight: "bold",
-              },
-              "& .MuiDataGrid-columnHeaderTitle": {
-                color: colors.grey[100],
-                fontWeight: "bold",
-              },
-              "& .MuiDataGrid-virtualScroller": {
-                backgroundColor: colors.primary[400],
-              },
-              "& .MuiDataGrid-footerContainer": {
-                borderTop: "none",
-                backgroundColor: colors.blueAccent[700],
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "10px",
-              },
-            }}
-          >
-            {loading ? (
-              <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-                <CircularProgress />
-              </Box>
-            ) : contacts.length === 0 ? (
-              <Typography variant="h6" align="center" mt={4}>
-                Không có liên hệ nào để hiển thị
-              </Typography>
-            ) : (
+                <MenuItem value="year">Theo năm</MenuItem>
+                <MenuItem value="month">Theo tháng</MenuItem>
+                <MenuItem value="range">Theo khoảng thời gian</MenuItem>
+              </Select>
+            </FormControl>
+
+            {filterType !== "range" && (
               <>
-                <DataGrid
-                  rows={contacts}
-                  columns={columns}
-                  getRowId={(row) => row._id}
-                  pagination={false}
-                  getRowHeight={() => 80}
-                  sx={{
-                    width: "100%",
-                  }}
-                  hideFooter={true}
-                  sortingMode="server"
-                  sortModel={sortModel}
-                  onSortModelChange={handleSortModelChange}
-                />
-                <Box display="flex" justifyContent="center" mt={2}>
-                  <Pagination
-                    count={totalPages}
-                    page={currentPage}
-                    onChange={handlePageChange}
-                    color="primary"
-                  />
-                </Box>
+                <FormControl sx={{ minWidth: 120 }}>
+                  <InputLabel>Năm</InputLabel>
+                  <Select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    label="Năm"
+                  >
+                    {years.map((year) => (
+                      <MenuItem key={year} value={year}>
+                        {year}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {filterType === "month" && (
+                  <FormControl sx={{ minWidth: 120 }}>
+                    <InputLabel>Tháng</InputLabel>
+                    <Select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                      label="Tháng"
+                    >
+                      {months.map((month) => (
+                        <MenuItem key={month.value} value={month.value}>
+                          {month.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
               </>
             )}
+
+            {filterType === "range" && (
+              <>
+                <TextField
+                  label="Từ ngày"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ width: isMobile ? "100%" : 180 }}
+                />
+                <TextField
+                  label="Đến ngày"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ width: isMobile ? "100%" : 180 }}
+                />
+              </>
+            )}
+            <Button
+              sx={{ ml: 1, backgroundColor: "white" }}
+              variant="outlined"
+              onClick={handleResetFilters}
+            >
+              Đặt lại
+            </Button>
+          </Box>
+
+          <Box display="flex" flexDirection={isMobile ? "column" : "row"} gap={2}>
+            <ToggleButtonGroup
+              value={statType}
+              exclusive
+              onChange={(e, newValue) => {
+                if (newValue !== null) setStatType(newValue);
+              }}
+              sx={{
+                backgroundColor: colors.primary[400],
+                "& .MuiToggleButton-root": {
+                  color: colors.grey[100],
+                  "&.Mui-selected": {
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                  },
+                },
+              }}
+            >
+              <ToggleButton value="revenue">Doanh thu</ToggleButton>
+              <ToggleButton value="quantity">Số lượng</ToggleButton>
+            </ToggleButtonGroup>
+
+            <ToggleButtonGroup
+              value={viewType}
+              exclusive
+              onChange={(e, newValue) => {
+                if (newValue !== null) setViewType(newValue);
+              }}
+              sx={{
+                backgroundColor: colors.primary[400],
+                "& .MuiToggleButton-root": {
+                  color: colors.grey[100],
+                  "&.Mui-selected": {
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                  },
+                  '&[value="all"]': {
+                    '&.Mui-selected': {
+                      backgroundColor: colors.redAccent[400],
+                    },
+                  },
+                  '&[value="hotels"]': {
+                    '&.Mui-selected': {
+                      backgroundColor: colors.greenAccent[500],
+                    },
+                  },
+                },
+              }}
+            >
+              <ToggleButton value="all">Tổng hợp</ToggleButton>
+              <ToggleButton value="tours">Tours</ToggleButton>
+              <ToggleButton value="hotels">Hotels</ToggleButton>
+            </ToggleButtonGroup>
           </Box>
         </Box>
-      </Box>
-      <Dialog open={openDetail} onClose={handleCloseDetail} maxWidth="xs" fullWidth>
-        <DialogTitle
-          sx={{
-            fontWeight: "bold",
-            fontSize: "1.3rem",
-            textAlign: "center",
-          }}
-        >
-          Chi tiết liên hệ
-        </DialogTitle>
-        <DialogContent>
-          {currentContact ? (
-            <Grid container spacing={2}>
-              <Grid item xs={4} display="flex" justifyContent="center" alignItems="center">
-                {currentContact.avatar ? (
-                  <img
-                    src={currentContact.avatar}
-                    alt="Avatar"
-                    style={{
-                      width: "120px",
-                      height: "120px",
-                      borderRadius: "50%",
-                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                      objectFit: "contain",
-                      border: "2px solid #000",
-                    }}
-                    onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/120";
-                    }}
-                  />
-                ) : (
-                  <img
-                    src="https://via.placeholder.com/120"
-                    alt="Avatar Placeholder"
-                    style={{ width: "120px", height: "120px", borderRadius: "50%" }}
-                  />
-                )}
-              </Grid>
-              <Grid item xs={8}>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  <strong>Họ tên:</strong> {currentContact.fullName || "N/A"}
-                </Typography>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  <strong>Email:</strong> {currentContact.email || "N/A"}
-                </Typography>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  <strong>Số điện thoại:</strong> {currentContact.phone || "N/A"}
-                </Typography>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  <strong>Trạng thái:</strong> {currentContact.status === "active" ? "Hoạt động" : "Tạm ngưng"}
-                </Typography>
-                <Typography variant="h6" sx={{ mb: 1 }}>
-                  <strong>Ngày tạo:</strong> {new Date(currentContact.createdAt).toLocaleDateString("vi-VN")}
-                </Typography>
-              </Grid>
-            </Grid>
+      </Paper>
+
+      <Paper sx={{ p: 2, backgroundColor: colors.primary[400] }}>
+        <Box sx={{ minHeight: isMobile ? 300 : isDashboard ? 200 : 400, height: isDashboard ? "40vh" : isMobile ? "60vh" : "75vh" }}>
+          {loading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+              <CircularProgress />
+            </Box>
+          ) : errorMessage ? (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+              <Typography color="error">{errorMessage}</Typography>
+            </Box>
+          ) : data.length === 0 ? (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+              <Typography>Không có dữ liệu để hiển thị.</Typography>
+            </Box>
           ) : (
-            <Typography>Không có dữ liệu</Typography>
+            <>
+              <Typography
+                variant="h6"
+                sx={{
+                  textAlign: "center",
+                  color: colors.grey[100],
+                  mb: 2,
+                }}
+              >
+                {statType === "revenue" ? "Doanh thu (nghìn VNĐ)" : "Số lượng"}
+              </Typography>
+              <ResponsiveBar
+                data={data}
+                theme={{
+                  axis: {
+                    domain: {
+                      line: {
+                        stroke: colors.grey[100],
+                      },
+                    },
+                    legend: {
+                      text: {
+                        fill: colors.grey[100],
+                      },
+                    },
+                    ticks: {
+                      line: {
+                        stroke: colors.grey[100],
+                        strokeWidth: 1,
+                      },
+                      text: {
+                        fill: colors.grey[100],
+                      },
+                    },
+                  },
+                  legends: {
+                    text: {
+                      fill: colors.grey[100],
+                    },
+                  },
+
+                }}
+                layout="vertical"
+                valueFormat={(value) => {
+                  if (!isFinite(value)) return "0";
+                  if (statType === "quantity") {
+                    return Math.round(value);
+                  }
+                  return Math.round(value / 1000);
+                }}
+                keys={keys}
+                indexBy="month"
+                margin={{ top: 50, right: isMobile ? 50 : 130, bottom: 70, left: isMobile ? 50 : 60 }}
+                padding={0.3}
+                valueScale={{ type: "linear" }}
+                indexScale={{ type: "band", round: true }}
+                colors={barColors}
+                borderColor={{
+                  from: "color",
+                  modifiers: [["darker", "1.6"]],
+                }}
+                axisTop={null}
+                axisRight={null}
+                axisBottom={{
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: isMobile ? 45 : 0,
+                  legend: isDashboard ? undefined : filterType === "range" ? "Ngày" : "Tháng",
+                  legendPosition: "middle",
+                  legendOffset: 50,
+                }}
+                axisLeft={{
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: 0,
+                  format: (value) => {
+                    if (!isFinite(value)) return "0";
+                    if (statType === "quantity") {
+                      return Math.round(value);
+                    }
+                    return Math.round(value / 1000);
+                  },
+                  legendPosition: "middle",
+                  legendOffset: isMobile ? -45 : -50,
+                }}
+                enableLabel={true}
+                label={(d) => (statType === "quantity" ? d.value : `${Math.round(d.value / 1000)}K`)}
+                labelSkipWidth={12}
+                labelSkipHeight={12}
+                labelTextColor={{
+                  from: "color",
+                  modifiers: [["darker", 1.6]],
+                }}
+
+                legends={
+                  isMobile || isDashboard
+                    ? []
+                    : [
+                      {
+                        data: legendLabels.map((label, index) => ({
+                          id: keys[index] || label,
+                          label: label,
+                          color: barColors[index],
+                        })),
+                        anchor: "bottom-right",
+                        direction: "column",
+                        justify: false,
+                        translateX: 120,
+                        translateY: 0,
+                        itemsSpacing: 2,
+                        itemWidth: 100,
+                        itemHeight: 20,
+                        itemDirection: "left-to-right",
+                        itemOpacity: 0.85,
+                        symbolSize: 20,
+                        effects: [
+                          {
+                            on: "hover",
+                            style: {
+                              itemOpacity: 1,
+                            },
+                          },
+                        ],
+                      },
+                    ]
+                }
+                role="application"
+                barAriaLabel={(e) =>
+                  `${e.id}: ${e.formattedValue} trong ${filterType === "range" ? "ngày" : "tháng"}: ${e.indexValue}`
+                }
+              />
+            </>
           )}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleCloseDetail}
-            color="error"
-            variant="contained"
-            sx={{ fontWeight: "bold" }}
-          >
-            Đóng
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog open={openDeleteConfirm} onClose={handleCloseDeleteConfirm} maxWidth="xs" fullWidth>
-        <DialogTitle
-          sx={{
-            fontWeight: "bold",
-            fontSize: "1.3rem",
-            textAlign: "center",
-          }}
-        >
-          Xác nhận xóa liên hệ
-        </DialogTitle>
-        <DialogContent>
-          <Typography>Bạn có chắc chắn muốn xóa liên hệ này không?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleCloseDeleteConfirm}
-            color="primary"
-            variant="contained"
-            sx={{ fontWeight: "bold" }}
-          >
-            Hủy
-          </Button>
-          <Button
-            onClick={handleConfirmDelete}
-            color="error"
-            variant="contained"
-            sx={{ fontWeight: "bold" }}
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} /> : "Xóa"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box >
+        </Box>
+        {data.length > 0 && (
+          <>
+            <Box display="flex" justifyContent="flex-end" mt={2}>
+              <Button
+                variant="contained"
+                onClick={toggleTableVisibility}
+                sx={{ backgroundColor: colors.blueAccent[400], "&:hover": { backgroundColor: colors.blueAccent[300] } }}
+              >
+                {showTable ? "Ẩn bảng" : "Hiện bảng"}
+              </Button>
+            </Box>
+            {showTable && (
+              <Box
+                mt={2}
+                height="300px"
+                sx={{
+                  "& .MuiDataGrid-root": {
+                    border: "none",
+                    width: "100%",
+                  },
+                  "& .MuiDataGrid-main": {
+                    width: "100%",
+                  },
+                  "& .MuiDataGrid-cell": {
+                    borderBottom: "none",
+                  },
+                  "& .MuiDataGrid-columnHeaders": {
+                    backgroundColor: colors.blueAccent[700],
+                    borderBottom: "none",
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                  },
+                  "& .MuiDataGrid-columnHeader": {
+                    backgroundColor: colors.blueAccent[700],
+                    color: colors.grey[100],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                  },
+                  "& .MuiDataGrid-columnHeaderTitle": {
+                    color: colors.grey[100],
+                    fontWeight: "bold",
+                  },
+                  "& .MuiDataGrid-virtualScroller": {
+                    backgroundColor: colors.primary[400],
+                  },
+                  "& .MuiDataGrid-footerContainer": {
+                    borderTop: "none",
+                    backgroundColor: colors.blueAccent[700],
+                  },
+                  "& .MuiCheckbox-root": {
+                    color: `${colors.greenAccent[200]} !important`,
+                  },
+                }}
+              >
+                <DataGrid
+                  hideFooter={true}
+                  rows={data}
+                  columns={columns}
+                  getRowId={(row) => row.id}
+                  pagination
+                  paginationMode="server"
+                  rowCount={rowCount}
+                  paginationModel={paginationModel}
+                  onPaginationModelChange={setPaginationModel}
+                  pageSizeOptions={[5, 10, 20]}
+                  getRowHeight={() => 60}
+                  sx={{ width: "100%" }}
+                />
+              </Box>
+            )}
+          </>
+        )}
+      </Paper>
+    </Box>
   );
 };
 
-export default ContactsControl;
+export default BarChart;
