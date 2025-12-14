@@ -1,0 +1,147 @@
+/* src/components/Common/Footer/footer.css */
+
+/* Footer */
+.footer {
+  background-color: #1a1a1a; /* Màu nền tối */
+  color: #ffffff;
+  padding: 40px 0;
+}
+
+.footer h4 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.footer p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  color: #cccccc;
+}
+
+/* Liên kết trong ListGroup */
+.footer .list-group-item {
+  background: none;
+  border: none;
+  padding: 5px 0;
+}
+
+.footer .list-group-item a {
+  color: #cccccc;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.footer .list-group-item a:hover {
+  color: #007bff;
+}
+
+/* Thông tin liên hệ */
+.footer a {
+  color: #cccccc;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer a:hover {
+  color: #007bff;
+}
+
+.footer i {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* Biểu tượng mạng xã hội */
+.social-links {
+  display: flex;
+  gap: 15px;
+}
+
+.social-links a {
+  color: #ffffff;
+  font-size: 18px;
+  transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+  color: #007bff;
+}
+
+/* Copyright */
+.copyright {
+  border-top: 1px solid #333;
+  padding: 20px 0;
+  margin-top: 20px;
+}
+
+.copyright p {
+  margin: 0;
+  font-size: 14px;
+  color: #999;
+}
+
+/* Nút quay lại đầu trang */
+.back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #ff8400;
+  color: #ffffff;
+  width: 50px;
+  height: 50px;
+  border-radius: 0; /* Thay đổi từ 50% thành 0 để tạo hình vuông */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.back-to-top:hover {
+  background-color: #b37700;
+  transform: scale(1.1);
+}
+
+.back-to-top i {
+  font-size: 24px;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .footer .col-md-3 {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer h4 {
+    font-size: 16px;
+  }
+
+  .footer p,
+  .footer .list-group-item a,
+  .footer a {
+    font-size: 13px;
+  }
+
+  .social-links a {
+    font-size: 16px;
+  }
+
+  .back-to-top {
+    width: 40px;
+    height: 40px;
+    bottom: 20px;
+    right: 20px;
+    border-radius: 0; /* Giữ hình vuông trên mobile */
+  }
+
+  .back-to-top i {
+    font-size: 20px;
+  }
+}

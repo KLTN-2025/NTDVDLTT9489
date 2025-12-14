@@ -1,0 +1,333 @@
+/* General styles for OrderList section */
+.orders-section {
+  padding: 50px 0;
+  background-color: #f8f9fa;
+  min-height: 80vh;
+}
+
+.orders-section h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.orders-section h1::after {
+  content: '';
+  width: 60px;
+  height: 4px;
+  background-color: #3498db;
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.table {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.table thead {
+  background-color: #3498db;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+  padding: 15px;
+  vertical-align: middle;
+  text-align: center;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.table tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+.table td .status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.table td .status-pending {
+  background-color: #ffd700;
+  color: #333;
+}
+
+.table td .status-paid {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.table td .status-cancelled {
+  background-color: #ff4d4f;
+  color: #fff;
+}
+.table td .status-refund,
+.table td .status-refunded {
+  background-color: #17a2b8;
+  color: #fff;
+}
+
+.cancel-btn {
+  background-color: #ff4d4f;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.cancel-btn:hover {
+  background-color: #e63946;
+  transform: scale(1.05);
+}
+
+.cancel-btn:disabled {
+  background-color: #d3d3d3;
+  cursor: not-allowed;
+}
+
+.text-center .spinner-border {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-width: 4px;
+}
+
+.text-center p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.alert-info {
+  background-color: #e7f3ff;
+  border-color: #b8daff;
+  color: #31708f;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Improved Modal Styles */
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 0 15px;
+}
+
+.modal-dialog {
+  margin: auto;
+  max-width: 500px;
+  width: 100%;
+}
+
+.modal-content {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.modal-header {
+  background-color: #3498db;
+  color: #fff;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  padding: 1.5rem;
+  border-bottom: none;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
+}
+
+.modal-body {
+  padding: 2.5rem;
+  background-color: #f9fbfd;
+}
+
+.modal-body p {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.modal-body .form-group {
+  margin-bottom: 1.8rem;
+}
+
+.modal-body .form-label {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+.modal-body .form-control {
+  border-radius: 8px;
+  border: 2px solid #e0e6e8;
+  padding: 12px 15px;
+  font-size: 1rem;
+  background-color: #fff;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modal-body .form-control:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+  outline: none;
+}
+
+.modal-body .form-control.is-invalid {
+  border-color: #ff4d4f;
+}
+
+.modal-body .invalid-feedback {
+  font-size: 0.95rem;
+  color: #ff4d4f;
+  margin-top: 0.3rem;
+  display: block;
+}
+
+.modal-body .form-check {
+  margin-top: 1rem;
+}
+
+.modal-body .form-check-label {
+  font-size: 1rem;
+  color: #333;
+  margin-left: 0.5rem;
+}
+
+.modal-body .form-check-input {
+  margin-top: 0.3rem;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.modal-body .form-check-input:checked {
+  background-color: #3498db;
+  border-color: #3498db;
+}
+
+.modal-footer {
+  padding: 1.5rem 2.5rem;
+  border-top: none;
+  background-color: #fff;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.modal-footer .btn-secondary {
+  background-color: #6c757d;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.modal-footer .btn-danger {
+  background-color: #ff4d4f;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.modal-footer .btn-danger:hover {
+  background-color: #e63946;
+  transform: scale(1.05);
+}
+
+.modal-footer .btn:disabled {
+  background-color: #d3d3d3;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.pagination {
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.page-item.active .page-link {
+  background-color: #3498db;
+  border-color: #3498db;
+}
+
+.page-link {
+  color: #3498db;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .orders-section h1 {
+    font-size: 1.5rem;
+  }
+
+  .table th,
+  .table td {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .cancel-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .modal-dialog {
+    max-width: 90%;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-body .form-control {
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 10px;
+    padding: 1rem;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    padding: 10px;
+  }
+}

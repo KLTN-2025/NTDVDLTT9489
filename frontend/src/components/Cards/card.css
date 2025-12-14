@@ -1,0 +1,156 @@
+.popular {
+    padding: 8px;
+    border: 1px solid #e0e0e0; /* Thêm viền nhẹ */
+    border-radius: 10px; /* Bo góc mềm hơn */
+    background: #ffffff;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Bóng nhẹ ban đầu */
+}
+
+.popular:hover {
+    transform: translateY(-8px); /* Nâng card nhẹ khi hover */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Tăng bóng khi hover */
+    transition: all 0.3s ease;
+}
+
+.popular:hover .card-title {
+    color: var(--primaryClr); /* Màu tiêu đề nổi bật khi hover */
+}
+
+.popular img {
+    width: 100%;
+    height: 180px; /* Đặt chiều cao cố định cho ảnh */
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+    border-radius: 8px 8px 0 0; /* Bo góc trên của ảnh */
+    transition: all 0.5s ease;
+}
+
+.popular:hover img {
+    transform: scale(1.1); /* Phóng to ảnh khi hover */
+    filter: brightness(1.05); /* Tăng độ sáng nhẹ */
+}
+
+.popular .card-body .badge {
+    padding: 5px 10px;
+    border-radius: 12px; /* Bo góc badge mềm hơn */
+    margin-right: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.popular:hover .card-body .badge {
+    transform: scale(1.05); /* Phóng to badge khi hover */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Thêm bóng cho badge */
+}
+
+/* Tùy chỉnh màu sắc badge */
+.popular .card-body .River {
+    background-color: #ffebf5 !important;
+    color: #cf3881 !important;
+}
+
+.popular .card-body .Wildlife {
+    background-color: #4ba7fc !important;
+    color: #ffffff !important; /* Đổi màu chữ cho dễ đọc */
+}
+
+.popular .card-body .Escorted {
+    background-color: #e8edf1 !important;
+    color: #4f5e71 !important;
+}
+
+.popular .card-body .Rail {
+    background-color: #fc961b !important;
+    color: #ffffff !important;
+}
+
+.popular .card-body .Tour {
+    background-color: #6088c4 !important;
+    color: #ffffff !important;
+}
+
+.popular .card-body .card-title {
+    font-size: var(--bodyText);
+    font-weight: bold;
+    color: #2c3e50; /* Màu tối hơn cho tiêu đề */
+    transition: all 0.3s ease;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.popular .card-body .card-text {
+    font-size: 13px;
+    padding: 8px 0;
+    line-height: 1.5em;
+    position: relative;
+    color: #666;
+    display: flex;
+    align-items: center;
+}
+
+.popular .card-body .card-text i {
+    position: relative;
+    top: auto;
+    color: var(--primaryClr);
+    margin-right: 8px;
+}
+
+.popular .card-body .text {
+    margin-left: 0;
+    font-size: 13px;
+}
+
+.popular .card-body .reviwe {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #666;
+}
+
+.popular .card-body .reviwe i {
+    color: var(--primaryClr);
+    margin-right: 5px;
+}
+
+.popular .card-footer {
+    background: none;
+    border-top: none;
+    padding: 10px 15px;
+}
+
+.popular .card-footer p {
+    font-size: var(--bodyText);
+    color: #4f5e71;
+    margin: 0;
+}
+
+.popular .card-footer p strong {
+    font-size: var(--bodyText);
+    color: #e74c3c; /* Màu giá nổi bật */
+    font-weight: bold;
+}
+
+.popular .card-footer .justify-content-between p:last-child {
+    font-size: 13px;
+    color: #2c3e50; /* Màu đậm hơn cho ngày khởi hành */
+    display: flex;
+    align-items: center;
+}
+
+.popular .card-footer .justify-content-between p:last-child i {
+    color: var(--primaryClr);
+    margin-right: 5px;
+}
+
+.popular .card-footer .justify-content-between p:last-child span {
+    font-weight: 600; /* Làm đậm "Ngày khởi hành" */
+    color: #2c3e50;
+    margin-right: 5px;
+}
+
+.popular:hover .card-footer .justify-content-between p:last-child {
+    color: var(--primaryClr); /* Đổi màu ngày khởi hành khi hover */
+}

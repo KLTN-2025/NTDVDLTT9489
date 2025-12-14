@@ -1,0 +1,428 @@
+/* src/pages/HotelService/hotel.css */
+@import "~react-image-gallery/styles/css/image-gallery.css";
+
+/* Section chính (HotelServices và HotelDetails) */
+.hotel-section {
+  padding: 60px 0;
+}
+
+/* Layout danh sách khách sạn (HotelServices) */
+.hotel-list .row {
+  margin: -15px;
+}
+
+.hotel-list .col-xl-4,
+.hotel-list .col-lg-6,
+.hotel-list .col-md-6,
+.hotel-list .col-sm-6 {
+  padding: 15px;
+}
+
+/* Nút bộ lọc trên mobile (HotelServices) */
+.hotel-section .primaryBtn {
+  background-color: var(--primaryClr, #3498db);
+  border: none;
+  padding: 10px 20px;
+  font-weight: bold;
+  color: white;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.hotel-section .primaryBtn i {
+  margin-right: 8px;
+}
+
+.hotel-section .primaryBtn:hover {
+  background-color: #2980b9;
+}
+
+/* Bộ lọc (HotelServices) */
+.hotel-filters {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Form bộ lọc */
+.hotel-filter-form h4 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+}
+
+.hotel-filter-form .form-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.hotel-filter-form .form-control,
+.hotel-filter-form .form-select {
+  border: 1px solid #e7e6e6;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 1rem;
+}
+
+.hotel-filter-form .form-control:focus,
+.hotel-filter-form .form-select:focus {
+  border-color: var(--primaryClr, #3498db);
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.hotel-filter-form .accordion-button {
+  background-color: #f5f5f6;
+  color: #333;
+  font-weight: 600;
+}
+
+.hotel-filter-form .accordion-button:not(.collapsed) {
+  background-color: #e9ecef;
+  color: var(--primaryClr, #3498db);
+}
+
+.hotel-filter-form .form-check-label {
+  color: #7f8c8d;
+}
+
+.hotel-filter-form .btn-primary {
+  background-color: var(--primaryClr, #3498db);
+  border: none;
+  font-weight: bold;
+}
+
+.hotel-filter-form .btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.hotel-filter-form .btn-secondary {
+  background-color: #6c757d;
+  border: none;
+}
+
+.hotel-filter-form .btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+/* Nội dung danh sách khách sạn (HotelServices) */
+.hotel-content {
+  padding-left: 15px;
+}
+
+.hotel-content p {
+  font-size: 1rem;
+  color: #7f8c8d;
+}
+
+/* Offcanvas (HotelServices) */
+.hotel-offcanvas .offcanvas-header {
+  background: var(--primaryClr, #3498db);
+  color: white;
+}
+
+.hotel-offcanvas .offcanvas-title {
+  font-weight: bold;
+}
+
+.hotel-offcanvas .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* HotelCard */
+.hotel-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.hotel-card:hover {
+  transform: translateY(-5px);
+}
+
+.hotel-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.hotel-card .card-body {
+  padding: 15px;
+}
+
+.hotel-card .card-text {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.hotel-card .card-text i {
+  color: var(--primaryClr, #3498db);
+  margin-right: 5px;
+}
+
+.hotel-card .card-title a {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+}
+
+.hotel-card .card-title a:hover {
+  color: var(--primaryClr, #3498db);
+}
+
+.hotel-card .card-footer {
+  background: #f5f5f6;
+  padding: 15px;
+  border-top: none;
+}
+
+.hotel-card .card-footer p {
+  margin: 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.hotel-card .card-footer b {
+  color: #2c3e50;
+}
+
+.hotel-card .btn-success {
+  background-color: #28a745;
+  border: none;
+  padding: 8px;
+  width: 100%;
+  font-weight: bold;
+}
+
+.hotel-card .btn-success:hover {
+  background-color: #218838;
+}
+
+/* HotelDetails: Tiêu đề chính */
+.hotel-details-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* HotelDetails: Image Gallery */
+.hotel-gallery .image-gallery-thumbnail {
+  width: 12.3%;
+}
+
+.hotel-gallery .image-gallery-thumbnail:hover,
+.hotel-gallery .image-gallery-thumbnail.active {
+  border-color: var(--primaryClr, #3498db);
+}
+
+/* HotelDetails: Tab navigation */
+.hotel-nav {
+  background-color: #f14b361a;
+  padding: 8px;
+}
+
+.hotel-nav .nav-link {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 0;
+  color: black;
+}
+
+.hotel-nav .nav-item {
+  flex-basis: 0;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.hotel-nav .nav-pills .nav-link.active,
+.hotel-nav .nav-pills .show > .nav-link {
+  color: white;
+  background-color: var(--primaryClr, #3498db);
+}
+
+/* HotelDetails: Nội dung tab */
+.hotel-content-details h1.h3 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #2c3e50;
+  border-bottom: 1px solid gainsboro;
+  padding-bottom: 8px;
+}
+
+.hotel-content-details .body-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #7f8c8d;
+}
+
+.hotel-content-details .list-group-item {
+  padding: 16px 0;
+  border: none;
+  font-size: 1rem;
+  background: unset;
+  line-height: 24px;
+  border-bottom: 1px solid gainsboro;
+}
+
+.hotel-content-details .list-group-item strong {
+  font-weight: bold;
+  color: #333;
+}
+
+/* HotelDetails: Form chọn ngày */
+.hotel-form {
+  margin-bottom: 1.5rem;
+}
+
+.hotel-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.hotel-form .form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.hotel-form .form-control {
+  border-radius: 4px;
+  border: 1px solid #e7e6e6;
+  padding: 8px 12px;
+  font-size: 1rem;
+}
+
+.hotel-form .form-control:focus {
+  border-color: var(--primaryClr, #3498db);
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+/* HotelDetails: Bảng phòng */
+.hotel-table {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.hotel-table th,
+.hotel-table td {
+  padding: 12px;
+  vertical-align: middle;
+  text-align: left;
+}
+
+.hotel-table th {
+  background-color: #f5f5f6;
+  font-weight: 600;
+  color: #333;
+}
+
+.hotel-table td {
+  color: #7f8c8d;
+}
+
+.hotel-table .btn-success {
+  background-color: #28a745;
+  border: none;
+  font-size: 0.9rem;
+  padding: 6px 12px;
+}
+
+.hotel-table .btn-success:hover {
+  background-color: #218838;
+}
+
+.hotel-table .btn-success:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* HotelDetails: Thông báo ngày đã chọn */
+.hotel-date-info {
+  font-size: 1rem;
+  color: #333;
+}
+
+.hotel-date-info strong {
+  color: var(--primaryClr, #3498db);
+}
+
+/* HotelDetails: Card giá */
+.hotel-price-card {
+  background: #f5f5f6;
+  border: none;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.hotel-price-card h1.h2 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 0;
+}
+
+.hotel-price-card .fs-4 {
+  font-size: 1.25rem;
+  color: #7f8c8d;
+}
+
+.hotel-price-card .btn-primary {
+  background-color: var(--primaryClr, #3498db);
+  border: none;
+  font-weight: bold;
+  padding: 10px 0;
+  font-size: 1rem;
+  border-radius: 4px;
+}
+
+.hotel-price-card .btn-primary:hover {
+  background-color: #2980b9;
+}
+
+/* HotelDetails: Card hỗ trợ */
+.hotel-support-card {
+  background: #f5f5f6;
+  border: none;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.hotel-support-card h1.h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.hotel-support-card .list-group-item {
+  padding: 8px 0;
+  border: none;
+  font-size: 1rem;
+  color: #7f8c8d;
+  background: unset;
+}
+
+.hotel-support-card i {
+  color: var(--primaryClr, #3498db);
+  margin-right: 8px;
+}
+
+.hotel-support-card strong {
+  color: #333;
+}
+
+/* HotelDetails: Bản đồ */
+.hotel-map iframe {
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .hotel-content {
+    padding-left: 0;
+  }
+}

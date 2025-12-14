@@ -1,0 +1,253 @@
+
+:root {
+  --primaryClr: #007bff; 
+  --secondaryClr: #f9f9f9; 
+  --white: #ffffff;
+  --subTitle: 1rem; 
+}
+
+/* Định dạng chung cho các section */
+.tours_section,
+.popular,
+.hotels_section,
+.popular_hotels,
+.gallery {
+  padding: 50px 0;
+  background-color: var(--secondaryClr);
+  overflow: hidden;
+}
+
+.main_heading {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.main_heading h1 {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #333;
+  position: relative;
+  display: inline-block;
+}
+
+.main_heading h1::after {
+  content: "";
+  width: 50%;
+  height: 3px;
+  background: var(--primaryClr);
+  position: absolute;
+  bottom: -10px;
+  left: 25%;
+}
+
+/* Định dạng lưới card */
+.tours_section .row,
+.popular .row,
+.hotels_section .row,
+.popular_hotels .row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px; /* Khoảng cách giữa các card */
+}
+
+.tours_section .col-md-3,
+.popular .col-md-3,
+.hotels_section .col-md-3,
+.popular_hotels .col-md-3 {
+  padding: 0 15px;
+  flex: 0 0 25%; /* 4 cột trên desktop */
+  max-width: 25%;
+}
+
+@media (max-width: 991px) {
+  .tours_section .col-md-3,
+  .popular .col-md-3,
+  .hotels_section .col-md-3,
+  .popular_hotels .col-md-3 {
+    flex: 0 0 33.333333%; /* 3 cột trên tablet */
+    max-width: 33.333333%;
+  }
+}
+
+@media (max-width: 768px) {
+  .tours_section .col-md-3,
+  .popular .col-md-3,
+  .hotels_section .col-md-3,
+  .popular_hotels .col-md-3 {
+    flex: 0 0 50%; /* 2 cột trên tablet nhỏ */
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 480px) {
+  .tours_section .col-md-3,
+  .popular .col-md-3,
+  .hotels_section .col-md-3,
+  .popular_hotels .col-md-3 {
+    flex: 0 0 100%; /* 1 cột trên mobile */
+    max-width: 100%;
+  }
+}
+
+/* Hiệu ứng cho card */
+.popular .popular,
+.hotels_section .hotel-card,
+.popular_hotels .hotel-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.popular .popular:hover,
+.hotels_section .hotel-card:hover,
+.popular_hotels .hotel-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Call to Action */
+.call_us {
+  background: url("../../assets/images/slider/1.jpg") no-repeat;
+  padding: 88px 0;
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.call_us .overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: #00000054;
+  z-index: -1;
+}
+
+.call_us .title {
+  color: var(--primaryClr);
+  font-style: italic;
+}
+
+.call_us .heading {
+  font-size: 50px;
+  color: var(--white);
+  line-height: 58px;
+  text-align: left;
+  font-weight: bold;
+  padding: 5px 0 20px 0;
+}
+
+.call_us p {
+  font-size: var(--subTitle);
+  color: var(--white);
+  line-height: 30px;
+}
+
+.call_us .secondary_btn {
+  background: none;
+  font-size: 18px;
+  color: var(--white);
+  display: inline-block;
+  border: 2px solid var(--white);
+  padding: 12px 8px;
+  text-decoration: none;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.call_us .secondary_btn:hover {
+  background: var(--primaryClr);
+  color: var(--white);
+}
+
+.bounce {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-30px);
+  }
+  60% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Gallery */
+.gallery {
+  background-color: var(--secondaryClr); /* Sử dụng biến CSS thay vì giá trị cụ thể */
+  overflow: hidden;
+  padding: 50px 0;
+}
+
+.gallery .styles_thumbpanel__1sa4E {
+  z-index: 9999;
+}
+
+.gallery .styles_lightroom__1X2qE {
+  position: fixed;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* Responsive */
+@media (max-width: 1199px) {
+  .call_us {
+    overflow: hidden;
+  }
+
+  .call_us .heading {
+    font-size: 28px;
+    line-height: 38px;
+    padding: 5px 0 10px 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .main_heading h1 {
+    font-size: 1.8rem;
+  }
+
+  .call_us .heading {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .call_us p {
+    font-size: 0.9rem;
+  }
+
+  .call_us .secondary_btn {
+    font-size: 16px;
+    padding: 10px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main_heading h1 {
+    font-size: 1.5rem;
+  }
+
+  .call_us .heading {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .call_us p {
+    font-size: 0.8rem;
+  }
+
+  .call_us .secondary_btn {
+    font-size: 14px;
+    padding: 8px 4px;
+  }
+}

@@ -1,0 +1,250 @@
+/* src/auth/Register/register.css */
+
+/* Định dạng tổng thể */
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  /* Tiêu đề trang đăng ký */
+  .register-header {
+    margin-bottom: 1.5rem;
+    margin-top: -150px;
+  }
+  
+  .register-header h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .register-header p {
+    font-size: 1.1rem;
+    color: #555;
+  }
+  
+  /* Form đăng ký */
+  .register-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .register-form:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Ô input */
+  .input-group {
+    text-align: left;
+    margin-bottom: 1.2rem;
+    min-height: 70px;
+    position: relative;
+  }
+  
+  .input-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #333;
+    font-size: 14px;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #fff;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
+  }
+  
+  .input-group input::placeholder {
+    color: #aaa;
+    font-size: 14px;
+  }
+  
+  .input-group input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 6px rgba(0, 123, 255, 0.2);
+  }
+  
+  .input-group input:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+    border-color: #e0e0e0;
+    opacity: 0.7;
+  }
+  
+  /* Password wrapper cho nút hiện/ẩn mật khẩu */
+  .password-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  
+  .password-wrapper input {
+    width: 100%;
+    padding-right: 60px;
+    box-sizing: border-box;
+  }
+  
+  .toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 0;
+    width: 40px;
+    text-align: center;
+  }
+  
+  .toggle-password:hover {
+    color: #0056b3;
+  }
+  
+  .toggle-password:disabled {
+    color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  /* Container giữ chỗ lỗi */
+  .error-container {
+    min-height: 18px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Thông báo lỗi */
+  .error-message {
+    color: #e63946;
+    font-size: 12px;
+    margin-top: 2px;
+    text-align: left;
+    display: block;
+  }
+  
+  .input-error input {
+    border-color: #ffcccc;
+    background-color: #fff5f5;
+    box-shadow: none;
+  }
+  
+  /* Nút đăng ký */
+  .register-button {
+    width: 100%;
+    padding: 12px;
+    background: #007bff;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.3s, transform 0.2s;
+  }
+  
+  .register-button:hover:not(:disabled) {
+    background: #0056b3;
+    transform: translateY(-2px);
+  }
+  
+  .register-button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Link Đăng nhập */
+  .register-links {
+    text-align: center;
+    margin-top: 1rem;
+  }
+  
+  .register-links p {
+    color: #007bff;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 5px 0;
+    transition: color 0.3s;
+  }
+  
+  .register-links p span {
+    font-weight: 500;
+  }
+  
+  .register-links p:hover {
+    text-decoration: underline;
+    color: #0056b3;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .register-container {
+      padding: 15px;
+    }
+  
+    .register-header h1 {
+      font-size: 1.8rem;
+    }
+  
+    .register-header p {
+      font-size: 1rem;
+    }
+  
+    .register-form {
+      padding: 1.5rem;
+      max-width: 100%;
+    }
+  
+    .input-group input {
+      font-size: 13px;
+      padding: 8px 10px;
+    }
+  
+    .password-wrapper input {
+      padding-right: 50px;
+    }
+  
+    .toggle-password {
+      width: 35px;
+    }
+  
+    .register-button {
+      font-size: 15px;
+      padding: 10px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .register-header h1 {
+      font-size: 1.5rem;
+    }
+  
+    .register-header p {
+      font-size: 0.9rem;
+    }
+  
+    .register-form {
+      padding: 1.2rem;
+    }
+  }

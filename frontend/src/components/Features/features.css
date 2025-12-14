@@ -1,0 +1,248 @@
+/* src/pages/Features/features.css */
+/* Định nghĩa các biến màu sắc */
+:root {
+    --primaryClr: #3498db; /* Màu chính (xanh dương) */
+    --textclr: #666; /* Màu văn bản */
+    --subTitle: 1.1rem; /* Kích thước tiêu đề phụ */
+    --bodyText: 0.9rem; /* Kích thước văn bản */
+  }
+  
+  .feature-section {
+    padding: 60px 0;
+    background-color: #f8f9fa;
+    overflow: hidden;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  
+  .section-title::after {
+    content: "";
+    width: 60px;
+    height: 3px;
+    background-color: var(--primaryClr);
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .feature-card {
+    border: none !important;
+    text-align: center;
+    padding: 20px 15px;
+    margin: 0 10px 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.5s ease forwards;
+    min-height: 300px; /* Cố định chiều cao tối thiểu */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Căn chỉnh nội dung */
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .feature-card:hover .feature-title {
+    color: var(--primaryClr);
+  }
+  
+  .feature-image {
+    width: 75px;
+    height: 75px;
+    margin: 0 auto 20px;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+  
+  .feature-card:hover .feature-image {
+    transform: scale(1.1);
+  }
+  
+  .feature-title {
+    font-size: var(--subTitle);
+    font-weight: 600;
+    color: #333;
+    padding: 10px 0;
+    transition: color 0.3s ease;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Giới hạn 2 dòng */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 48px; /* Đảm bảo chiều cao cố định (2 dòng x 24px line-height) */
+  }
+  
+  .feature-description {
+    font-size: var(--bodyText);
+    line-height: 24px;
+    color: var(--textclr);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Giới hạn 3 dòng */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 72px; /* Đảm bảo chiều cao cố định (3 dòng x 24px line-height) */
+  }
+  
+  /* Style cho react-slick */
+  .slick-slide {
+    height: auto !important; /* Đảm bảo các slide có chiều cao bằng nhau */
+  }
+  
+  .slick-track {
+    display: flex !important;
+    align-items: stretch !important;
+  }
+  
+  .slick-prev,
+  .slick-next {
+    width: 45px;
+    height: 45px;
+    background-color: var(--primaryClr);
+    border-radius: 50%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    transition: background-color 0.3s ease;
+  }
+  
+  .slick-prev:hover,
+  .slick-next:hover {
+    background-color: #2980b9;
+  }
+  
+  .slick-prev i,
+  .slick-next i {
+    color: #fff;
+    font-size: 1.3rem;
+  }
+  
+  .slick-prev {
+    left: -60px;
+  }
+  
+  .slick-next {
+    right: -60px;
+  }
+  
+  .slick-dots {
+    bottom: -40px;
+  }
+  
+  .slick-dots li {
+    margin: 0 5px;
+  }
+  
+  .slick-dots li button:before {
+    font-size: 12px;
+    color: #ccc;
+    opacity: 0.7;
+  }
+  
+  .slick-dots li.slick-active button:before {
+    color: var(--primaryClr);
+    opacity: 1;
+  }
+  
+  /* Animation khi card xuất hiện */
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .feature-card {
+      margin: 0 5px 20px;
+      min-height: 280px; /* Điều chỉnh chiều cao cho màn hình nhỏ hơn */
+    }
+  
+    .slick-prev {
+      left: -40px;
+    }
+  
+    .slick-next {
+      right: -40px;
+    }
+  }
+  
+  @media (max-width: 991px) {
+    .section-title {
+      font-size: 2rem;
+    }
+  
+    .feature-title {
+      font-size: 1rem;
+      min-height: 44px; /* Điều chỉnh chiều cao (2 dòng x 22px line-height) */
+    }
+  
+    .feature-description {
+      font-size: 0.85rem;
+      line-height: 22px;
+      min-height: 66px; /* Điều chỉnh chiều cao (3 dòng x 22px line-height) */
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .feature-section {
+      padding: 40px 0;
+    }
+  
+    .section-title {
+      font-size: 1.8rem;
+    }
+  
+    .feature-image {
+      width: 60px;
+      height: 60px;
+    }
+  
+    .feature-card {
+      min-height: 260px; /* Điều chỉnh chiều cao cho mobile */
+    }
+  
+    .feature-title {
+      font-size: 0.95rem;
+      min-height: 42px; /* Điều chỉnh chiều cao (2 dòng x 21px line-height) */
+    }
+  
+    .feature-description {
+      font-size: 0.8rem;
+      line-height: 20px;
+      min-height: 60px; /* Điều chỉnh chiều cao (3 dòng x 20px line-height) */
+    }
+  
+    .slick-dots {
+      bottom: -30px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .feature-card {
+      margin: 0 15px 20px;
+      min-height: 240px; /* Điều chỉnh chiều cao cho màn hình rất nhỏ */
+    }
+  
+    .section-title {
+      font-size: 1.5rem;
+    }
+  }

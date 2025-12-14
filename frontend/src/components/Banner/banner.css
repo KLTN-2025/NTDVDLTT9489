@@ -1,0 +1,180 @@
+/* Định nghĩa biến CSS */
+:root {
+  --sub-title: 18px;
+  --primary-clr: #ff5733;
+  --white: #fff;
+  --overlay-opacity: 0.6;
+  --transition-time: 0.2s;
+  --font-family: "Poppins", sans-serif;
+}
+
+/* Reset và base styles cho slider */
+.slider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  z-index: 1;
+  isolation: isolate;
+}
+
+/* Ảnh slider */
+.carousel-item img {
+  display: block;
+  width: 100%;
+  height: 600px;
+  object-fit: cover;
+}
+
+/* Overlay mờ */
+.carousel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, var(--overlay-opacity));
+  z-index: 1;
+}
+
+/* Định vị caption */
+.carousel-item {
+  position: relative;
+}
+
+.carousel-caption {
+  z-index: 10;
+  bottom: 20%;
+  padding-bottom: 0;
+}
+
+/* Tiêu đề và mô tả chung */
+.carousel-caption h5,
+.carousel-caption p {
+  color: var(--white);
+  text-align: center;
+  font-family: var(--font-family);
+}
+
+/* Tiêu đề cụ thể */
+.carousel-caption h5 {
+  font-size: 55px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.5rem;
+}
+
+.carousel-caption h5 span {
+  display: block;
+}
+
+/* Mô tả cụ thể */
+.carousel-caption p {
+  font-size: var(--sub-title);
+  font-weight: 500;
+}
+
+/* Nút điều hướng chung */
+.carousel-control-prev,
+.carousel-control-next {
+  z-index: 10;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: var(--primary-clr);
+  opacity: 1;
+  transition: transform var(--transition-time) ease;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Hiệu ứng hover */
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+  transform: scale(1.1) translateY(-50%);
+}
+
+/* Icon mũi tên */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  width: 20px;
+  height: 20px;
+  background: var(--white);
+  border-radius: 50%;
+  background-size: 50%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.carousel-control-prev-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3E%3Cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E");
+}
+
+.carousel-control-next-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3E%3Cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+}
+
+/* Tùy chỉnh indicators (các chấm điều hướng) */
+.carousel-indicators {
+  z-index: 10;
+  bottom: 10px;
+}
+
+.carousel-indicators [data-bs-target] {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--white);
+  opacity: 0.5;
+  margin: 0 5px;
+  border: none;
+}
+
+.carousel-indicators .active {
+  opacity: 1;
+  background-color: var(--primary-clr);
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .carousel-caption {
+    bottom: 18%;
+  }
+  .carousel-caption h5 {
+    font-size: 35px;
+  }
+  .carousel-caption p {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .carousel-item img {
+    height: 350px;
+  }
+  .carousel-caption {
+    bottom: 22%;
+    padding-bottom: 20px;
+  }
+  .carousel-caption h5 {
+    font-size: 26px;
+  }
+  .carousel-caption p {
+    font-size: 14px;
+  }
+  .carousel-control-prev,
+  .carousel-control-next {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 420px) {
+  .carousel-caption {
+    inset-inline: 3%;
+    bottom: 16%;
+    padding-bottom: 20px;
+  }
+  .carousel-control-prev,
+  .carousel-control-next {
+    width: 30px;
+    height: 30px;
+  }
+}

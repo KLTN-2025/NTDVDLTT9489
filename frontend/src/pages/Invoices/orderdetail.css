@@ -1,0 +1,51 @@
+.order-detail-section h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.order-detail-section .card {
+  border-radius: 8px;
+}
+
+.order-detail-section .card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.order-detail-section .list-group-item {
+  border: none;
+  padding: 0.5rem 0;
+}
+
+.order-detail-section .list-group-item strong {
+  display: inline-block;
+  width: 150px;
+}
+
+.order-detail-section ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.order-detail-section ul li {
+  list-style-type: disc;
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.status-pending {
+  background-color: #ffc107;
+}
+
+.status-paid {
+  background-color: #28a745;
+}
+
+.status-cancelled {
+  background-color: #dc3545;
+}

@@ -1,0 +1,313 @@
+/* src/pages/Profile/profile.css */
+
+/* Container chính */
+.profile-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background: #f5f5f5;
+  min-height: calc(100vh - 200px); /* Đảm bảo chiều cao tối thiểu */
+}
+
+/* Nội dung hồ sơ */
+.profile-content {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Chế độ xem hồ sơ */
+.profile-view {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+/* Ảnh đại diện */
+.profile-avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+/* Thông tin hồ sơ */
+.profile-info {
+  flex: 1;
+}
+
+.profile-info p {
+  margin: 12px 0;
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+.profile-info p strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Nút chỉnh sửa */
+.edit-btn {
+  padding: 10px 24px;
+  background: var(--primaryClr, #3498db);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.edit-btn:hover {
+  background: #2980b9;
+}
+
+/* Form chỉnh sửa */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Nhóm input */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.form-group input {
+  padding: 10px 14px;
+  border: 1px solid #e7e6e6;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #333;
+  background: #f8f9fa;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: var(--primaryClr, #3498db);
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+  outline: none;
+}
+
+.form-group input:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Thông báo lỗi validation */
+.form-group .error {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* Ảnh đại diện preview */
+.avatar-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin-top: 12px;
+  border: 2px solid #e9ecef;
+  object-fit: cover;
+}
+
+/* Nút trong form */
+.form-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.save-btn {
+  background: #28a745;
+  color: #fff;
+}
+
+.save-btn:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+.save-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: #fff;
+}
+
+.cancel-btn:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+}
+
+.cancel-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Thông báo */
+.notification {
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.notification.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.notification.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: inherit;
+  padding: 0 5px;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 20px 10px;
+  }
+
+  .profile-content {
+    padding: 20px;
+  }
+
+  .profile-view {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+  }
+
+  .profile-info p {
+    font-size: 1rem;
+  }
+
+  .edit-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .profile-form {
+    max-width: 100%;
+  }
+
+  .form-group input {
+    font-size: 0.9rem;
+  }
+
+  .form-group .error {
+    font-size: 0.8rem;
+  }
+
+  .avatar-preview {
+    width: 100px;
+    height: 100px;
+  }
+
+  .save-btn,
+  .cancel-btn {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+  }
+
+  .notification {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .profile-info p {
+    font-size: 0.9rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .notification {
+    font-size: 0.85rem;
+  }
+}

@@ -1,0 +1,159 @@
+/* src/components/CustomDropdown/customdropdown.css */
+
+/* Dropdown chính */
+.dropdown-custom {
+    width: 100%;
+  }
+  
+  /* Toggle (ô hiển thị giá trị đã chọn hoặc placeholder) */
+  .dropdown-custom #dropdown-custom-components {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 5px 30px 5px 5px;
+    font-size: 0.9rem; /* Chữ phụ nhỏ hơn */
+    font-weight: 600;
+    color: #333;
+    position: relative;
+    text-align: left;
+  }
+  
+  /* Span bên trong toggle (chứa giá trị hoặc placeholder) */
+  .dropdown-custom #dropdown-custom-components span {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    color: #333;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+  }
+  
+  /* Khi chưa chọn giá trị, hiển thị placeholder màu xám */
+  .dropdown-custom #dropdown-custom-components span:empty::before,
+  .dropdown-custom #dropdown-custom-components span:not(:has(*)) {
+    content: attr(data-placeholder);
+    color: #999;
+  }
+  
+  /* Loại bỏ viền và outline khi focus */
+  .dropdown-custom #dropdown-custom-components:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
+  }
+  
+  /* Icon mũi tên xuống */
+  .dropdown-custom .dropdown-toggle::after {
+    border: none;
+    content: "\f282";
+    font-family: "bootstrap-icons";
+    font-size: 0.9rem;
+    color: #666;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  /* Icon địa điểm cho ô "Địa điểm" */
+  .dropdown-custom.geo #dropdown-custom-components::before {
+    content: "\f2bf";
+    font-family: "bootstrap-icons";
+    font-size: 1rem;
+    color: #666;
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .dropdown-custom.geo #dropdown-custom-components {
+    padding-left: 30px !important;
+  }
+  
+  /* Dropdown menu */
+  .dropdown-custom .dropdown-menu {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  /* Ô tìm kiếm trong dropdown */
+  .dropdown-custom .dropdown-search-input {
+    border: 1px solid #e7e6e6;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    margin: 5px 0;
+  }
+  
+  .dropdown-custom .dropdown-search-input:focus {
+    border-color: var(--primaryClr, #3498db);
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    outline: none;
+  }
+  
+  /* Danh sách tùy chọn */
+  .dropdown-custom .list-unstyled {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .dropdown-custom .list-unstyled li {
+    padding: 0;
+  }
+  
+  .dropdown-custom .list-unstyled li a {
+    padding: 8px 12px;
+    font-size: 0.9rem; /* Chữ phụ nhỏ hơn */
+    font-weight: 500;
+    color: #333;
+    transition: all 0.3s ease;
+  }
+  
+  .dropdown-custom .list-unstyled li a:hover {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: var(--primaryClr, #3498db);
+  }
+  
+  /* Responsive */
+  @media (max-width: 767px) {
+    .dropdown-custom #dropdown-custom-components {
+      font-size: 0.85rem; /* Giảm kích thước chữ phụ trên mobile */
+      padding: 5px 25px 5px 5px;
+    }
+  
+    .dropdown-custom.geo #dropdown-custom-components {
+      padding-left: 25px !important;
+    }
+  
+    .dropdown-custom .dropdown-toggle::after {
+      font-size: 0.8rem;
+      right: 8px;
+    }
+  
+    .dropdown-custom.geo #dropdown-custom-components::before {
+      font-size: 0.9rem;
+      left: 5px;
+    }
+  
+    .dropdown-custom .dropdown-menu {
+      padding: 8px;
+    }
+  
+    .dropdown-custom .dropdown-search-input {
+      font-size: 0.85rem;
+      padding: 5px 8px;
+    }
+  
+    .dropdown-custom .list-unstyled li a {
+      font-size: 0.85rem;
+      padding: 6px 10px;
+    }
+  }
