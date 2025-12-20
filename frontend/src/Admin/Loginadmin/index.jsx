@@ -27,14 +27,17 @@ const LoginAdmin = () => {
 
             if (response.data.code === 200) {
                 const token = response.data.token;
+                const accountData = response.data.account;
 
-                // Construct adminData from login response and form input
+                // Construct adminData from backend response
                 const adminData = {
-                    email: email,
-                    fullName: response.data.fullName || "", // Use if backend provides fullName
-                    phone: response.data.phone || "",
-                    avatar: response.data.avatar || "",
-                    _id: response.data.accountId || "", // Use if backend provides account ID
+                    _id: accountData._id,
+                    email: accountData.email,
+                    fullName: accountData.fullName || "",
+                    avatar: accountData.avatar || "",
+                    role_id: accountData.role_id,
+                    roleTitle: accountData.roleTitle,
+                    permissions: accountData.permissions || []
                 };
                console.log ("Saving adminData to localStorage:", JSON.stringify(adminData, null, 2));
 

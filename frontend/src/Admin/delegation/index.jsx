@@ -65,7 +65,23 @@ const DelegationControl = () => {
                 sortKey: "createdAt",
                 sortValue: "desc",
             });
-            // console.log("fetchRoles response:", response);
+            console.log("fetchRoles response:", response);
+            
+            // Kiểm tra nếu API trả về lỗi permission
+            if (response.code === 400 && response.message) {
+                let errorMsg = response.message;
+                // Nếu không có quyền xem danh sách nhóm quyền, thông báo rõ hơn
+                if (errorMsg.includes("không có quyền xem danh sách nhóm quyền")) {
+                    errorMsg = "Bạn không có quyền truy cập trang này. Vui lòng liên hệ quản trị viên để được cấp quyền 'role_view' và 'role_permissions'.";
+                }
+                setError(errorMsg);
+                toast.error(errorMsg, { position: "top-right" });
+                setRoles([]);
+                setPermissions({});
+                setPreviousPermissions({});
+                return;
+            }
+            
             if (response && Array.isArray(response.roles)) {
                 const formattedRoles = response.roles.map((role) => ({
                     id: role._id,
@@ -267,21 +283,31 @@ const DelegationControl = () => {
                 Phân quyền
             </Typography>
             {error && (
-                <Typography color="error" mb={2}>
-                    {error}
-                </Typography>
+                <Paper sx={{ 
+                    p: 3, 
+                    mb: 2, 
+                    backgroundColor: colors.redAccent[700],
+                    border: `2px solid ${colors.redAccent[500]}`
+                }}>
+                    <Typography variant="h5" color="white" fontWeight="bold">
+                        ⚠️ Lỗi truy cập
+                    </Typography>
+                    <Typography color="white" mt={1}>
+                        {error}
+                    </Typography>
+                </Paper>
             )}
             {loading ? (
                 <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
                     <CircularProgress />
                 </Box>
-            ) : roles.length === 0 ? (
+            ) : roles.length === 0 && !error ? (
                 <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
                     <Typography variant="h4" color={colors.grey[100]}>
                         Không có nhóm quyền nào để hiển thị
                     </Typography>
                 </Box>
-            ) : (
+            ) : roles.length > 0 ? (
                 <>
                     <TableContainer component={Paper} sx={{ backgroundColor: colors.primary[400], border: "none" }}>
                         <Table sx={{ width: "100%", border: "none" }}>
@@ -390,7 +416,7 @@ const DelegationControl = () => {
                         </Button>
                     </Box>
                 </>
-            )}
+            ) : null}
         </Box>
     );
 };

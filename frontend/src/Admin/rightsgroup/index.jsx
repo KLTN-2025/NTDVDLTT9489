@@ -37,6 +37,7 @@ import {
 } from "./RightsgroupApi";
 import { useAdminAuth } from "../../context/AdminContext";
 import { useNavigate } from "react-router-dom";
+import PermissionGuard from "../../components/PermissionGuard/PermissionGuard";
 
 // Ánh xạ tên hiển thị cho quyền
 const PERMISSION_DISPLAY_NAMES = {
@@ -160,6 +161,18 @@ const RightsGroupControl = () => {
                 sortValue: "desc",
             });
             console.log("fetchRightsGroups response:", response);
+            
+            // Kiểm tra nếu API trả về lỗi permission
+            if (response.code === 400 && response.message) {
+                const errorMsg = response.message;
+                setError(errorMsg);
+                toast.error(errorMsg, { position: "top-right" });
+                setRightsGroups([]);
+                setAllRightsGroups([]);
+                setTotalPages(1);
+                return;
+            }
+            
             if (response && Array.isArray(response.roles)) {
                 const formattedData = response.roles.map((item, index) => ({
                     ...item,
@@ -395,39 +408,54 @@ const RightsGroupControl = () => {
             flex: 1,
             renderCell: (params) => (
                 <Box display="flex" gap={1} mt="12px">
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        startIcon={<VisibilityIcon />}
-                        onClick={() => handleOpenDetail(params.row)}
+                    <PermissionGuard 
+                        permission="role_view"
+                        tooltipMessage="Bạn không có quyền xem chi tiết nhóm quyền"
                     >
-                        Chi tiết
-                    </Button>
-                    <Button
-                        variant="contained"
-                        sx={{
-                            backgroundColor: colors.blueAccent[300],
-                            color: "white",
-                            "&:hover": {
-                                backgroundColor: colors.blueAccent[200],
-                            },
-                        }}
-                        size="small"
-                        startIcon={<EditIcon />}
-                        onClick={() => handleEdit(params.row)}
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            startIcon={<VisibilityIcon />}
+                            onClick={() => handleOpenDetail(params.row)}
+                        >
+                            Chi tiết
+                        </Button>
+                    </PermissionGuard>
+                    <PermissionGuard 
+                        permission="role_edit"
+                        tooltipMessage="Bạn không có quyền chỉnh sửa nhóm quyền"
                     >
-                        Sửa
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        size="small"
-                        startIcon={<DeleteIcon />}
-                        onClick={() => handleOpenDeleteConfirm(params.row._id)}
+                        <Button
+                            variant="contained"
+                            sx={{
+                                backgroundColor: colors.blueAccent[300],
+                                color: "white",
+                                "&:hover": {
+                                    backgroundColor: colors.blueAccent[200],
+                                },
+                            }}
+                            size="small"
+                            startIcon={<EditIcon />}
+                            onClick={() => handleEdit(params.row)}
+                        >
+                            Sửa
+                        </Button>
+                    </PermissionGuard>
+                    <PermissionGuard 
+                        permission="role_delete"
+                        tooltipMessage="Bạn không có quyền xóa nhóm quyền"
                     >
-                        Xóa
-                    </Button>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => handleOpenDeleteConfirm(params.row._id)}
+                        >
+                            Xóa
+                        </Button>
+                    </PermissionGuard>
                 </Box>
             ),
         },
@@ -476,14 +504,19 @@ const RightsGroupControl = () => {
                                     <SearchIcon />
                                 </IconButton>
                             </Paper>
-                            <Button
-                                variant="contained"
-                                color="success"
-                                startIcon={<AddIcon />}
-                                onClick={handleOpen}
+                            <PermissionGuard 
+                                permission="role_create"
+                                hideIfNoPermission={true}
                             >
-                                Thêm mới nhóm quyền
-                            </Button>
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    startIcon={<AddIcon />}
+                                    onClick={handleOpen}
+                                >
+                                    Thêm mới nhóm quyền
+                                </Button>
+                            </PermissionGuard>
                         </Box>
                     </Box>
                 </Box>

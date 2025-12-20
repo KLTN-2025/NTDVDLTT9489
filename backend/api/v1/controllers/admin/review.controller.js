@@ -1,5 +1,7 @@
 const paginationHelper = require("../../helper/pagination");
 const Review = require("../../models/hotelReview.model");
+const Hotel = require("../../models/hotel.model");
+const Room = require("../../models/room.model");
 
 // [GET]/api/v1/admin/reviews/hotels/:hotelId
 module.exports.indexHotel = async (req, res) => {
@@ -42,9 +44,21 @@ module.exports.indexHotel = async (req, res) => {
         // end pagination
 
         const reviews = await Review.find(find).sort(sort).limit(objPagination.limitItems).skip(objPagination.skip);
+        
+        // Populate hotel and room information
+        const reviewsWithDetails = await Promise.all(reviews.map(async (review) => {
+            const hotel = await Hotel.findById(review.hotel_id);
+            const room = await Room.findById(review.room_id);
+            return {
+                ...review.toObject(),
+                hotel_info: hotel ? { name: hotel.name, _id: hotel._id } : null,
+                room_info: room ? { name: room.name, _id: room._id } : null
+            };
+        }));
 
         res.json({
-            reviews: reviews,
+            reviews: reviewsWithDetails,
+            totalRecords: countRecords,
             totalPage: objPagination.totalPage
         });
     }

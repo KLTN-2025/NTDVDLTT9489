@@ -9,6 +9,7 @@ const orderRoutes = require("./order.route");
 const settingRoutes = require("./setting.route");
 const hotelRoutes = require("./hotel.route");
 const reviewRoutes = require("./review.route");
+const tourReviewRoutes = require("./tourReview.route");
 const userRoutes = require("./user.route");
 const settingsRoutes = require("./setting.route");
 const dashBoardRoutes = require("./dashboard.route");
@@ -28,6 +29,7 @@ module.exports = (app) => {
     app.use(version + PARTH_ADMIN + "/settings", authMiddleware.requireAuth, settingRoutes);
     app.use(version + PARTH_ADMIN + "/hotels", authMiddleware.requireAuth, hotelRoutes);
     app.use(version + PARTH_ADMIN + "/reviews", authMiddleware.requireAuth, reviewRoutes);
+    app.use(version + PARTH_ADMIN + "/tour-reviews", authMiddleware.requireAuth, tourReviewRoutes);
     app.use(version + PARTH_ADMIN + "/users", authMiddleware.requireAuth, userRoutes);
     app.use(version + PARTH_ADMIN + "/settings", authMiddleware.requireAuth, settingsRoutes);
     app.use(version + PARTH_ADMIN + "/dashboard", authMiddleware.requireAuth, dashBoardRoutes);

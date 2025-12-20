@@ -8,6 +8,7 @@ const chatRoute = require("./chat.route");
 const hotelRoute = require("./hotel.route");
 const searchRoute = require("./search.route");
 const reviewRoute = require("./review.route");
+const tourReviewRoute = require("./tourReview.route");
 const feedbackRoute = require("./feedback.route");
 const settingRoute = require("./setting.route");
 const voucherRoute = require("./voucher.route");
@@ -30,6 +31,7 @@ module.exports = (app) => {
     app.use(version + '/hotels', hotelRoute);
     app.use(version + '/search', searchRoute);
     app.use(version + '/reviews', reviewRoute);
+    app.use(version + '/tour-reviews', tourReviewRoute);
     app.use(version + '/feedbacks', feedbackRoute);
     app.use(version + '/setting', settingRoute);
     app.use(version + '/vouchers', voucherRoute);

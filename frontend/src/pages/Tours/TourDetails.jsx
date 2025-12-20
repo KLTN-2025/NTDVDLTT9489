@@ -21,6 +21,7 @@ import api from "../../utils/api";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import TourReviews from "../../components/TourReviews/TourReviews";
 
 const TourDetails = () => {
   const { slugTour: tourId } = useParams();
@@ -231,6 +232,9 @@ const TourDetails = () => {
                       <Nav.Item>
                         <Nav.Link eventKey="4">Vị trí</Nav.Link>
                       </Nav.Item>
+                      <Nav.Item>
+                        <Nav.Link eventKey="5">Đánh giá</Nav.Link>
+                      </Nav.Item>
                     </Nav>
                   </Col>
 
@@ -412,6 +416,11 @@ const TourDetails = () => {
                         ) : (
                           <p>Chưa có thông tin vị trí chính xác. Điểm tập trung: {tour.gathering || "Chưa có thông tin"}</p>
                         )}
+                      </div>
+                    </Tab.Pane>
+                    <Tab.Pane eventKey="5">
+                      <div className="tour_details-section reviews-section">
+                        <TourReviews tourId={tour._id} />
                       </div>
                     </Tab.Pane>
                   </Tab.Content>

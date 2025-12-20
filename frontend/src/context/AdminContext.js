@@ -39,7 +39,7 @@ export const AdminAuthProvider = ({ children }) => {
 
                     // Kiểm tra token admin (gọi API nếu backend hỗ trợ verify token)
                     setAdminToken(storedAdminToken);
-                    setAdmin({ ...parsedAdmin, role: "admin" });
+                    setAdmin({ ...parsedAdmin, role: "admin", permissions: parsedAdmin.permissions || [] });
                 }
             } catch (error) {
                 console.error("Lỗi khi xác thực admin token:", error);
@@ -65,7 +65,7 @@ export const AdminAuthProvider = ({ children }) => {
         localStorage.setItem("adminToken", token);
         localStorage.setItem("adminInfo", JSON.stringify(adminData));
         setAdminToken(token);
-        setAdmin({ ...adminData, role: "admin" });
+        setAdmin({ ...adminData, role: "admin", permissions: adminData.permissions || [] });
         toast.success("Đăng nhập admin thành công!");
         navigate("/admin/dashboard");
     };

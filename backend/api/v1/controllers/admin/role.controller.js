@@ -37,6 +37,7 @@ module.exports.index = async (req, res) => {
         const roles = await Role.find(find).sort(sort).limit(objPagination.limitItems).skip(objPagination.skip);
 
         res.json({
+            code: 200,
             roles: roles,
             totalPage: objPagination.totalPage
         });

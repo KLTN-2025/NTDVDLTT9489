@@ -128,6 +128,21 @@ module.exports.login = async (req, res) => {
         return;
     }
 
+    // Lấy thông tin role và permissions
+    const Role = require("../../models/role.model");
+    let role = null;
+    let permissions = [];
+
+    if (account.role_id) {
+        role = await Role.findOne({
+            _id: account.role_id,
+            deleted: false
+        });
+        if (role) {
+            permissions = role.permissions || [];
+        }
+    }
+
     const token = account.token;
     res.cookie("tokenAccount", token);
 
@@ -135,6 +150,15 @@ module.exports.login = async (req, res) => {
         code: 200,
         message: "Đăng nhập thành công",
         token: token,
+        account: {
+            _id: account._id,
+            fullName: account.fullName,
+            email: account.email,
+            avatar: account.avatar,
+            role_id: account.role_id,
+            roleTitle: role ? role.title : null,
+            permissions: permissions
+        }
     });
 };
 

@@ -24,7 +24,7 @@ import { tokens } from "../../theme";
 import Header from "../../components/Scenes/Header";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getHotelReviews, getHotels, deleteReview } from "./reviewApi";
+import { getHotelReviews, getHotels, deleteReview, getTours, getTourReviews, deleteTourReview } from "./reviewApi";
 import { getContactDetail } from "../contacts/ContactsApi";
 import { useAdminAuth } from "../../context/AdminContext";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -39,8 +39,11 @@ const Reviews = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const { adminToken } = useAdminAuth();
     const navigate = useNavigate();
+    const [reviewType, setReviewType] = useState("hotel"); // "hotel" or "tour"
     const [hotels, setHotels] = useState([]);
+    const [tours, setTours] = useState([]);
     const [selectedHotel, setSelectedHotel] = useState(null);
+    const [selectedTour, setSelectedTour] = useState(null);
     const [reviews, setReviews] = useState([]);
     const [searchText, setSearchText] = useState("");
     const [sortOption, setSortOption] = useState("stt_asc");
@@ -96,6 +99,41 @@ const Reviews = () => {
         }
     };
 
+    const fetchTours = async () => {
+        setLoading(true);
+        try {
+            const response = await getTours(adminToken);
+            console.log("fetchTours response:", response);
+            if (response.code === 200 && Array.isArray(response.tours)) {
+                console.log("Tours data:", response.tours);
+                setTours(response.tours);
+                if (response.tours.length === 0) {
+                    toast.info("Không có tour nào để hiển thị!", { position: "top-right" });
+                } else {
+                    setSelectedTour(response.tours[0]);
+                    console.log("Selected tour:", response.tours[0]);
+                }
+            } else {
+                toast.error(response.message || "Không thể tải danh sách tour!", {
+                    position: "top-right",
+                });
+                setTours([]);
+            }
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Không thể tải danh sách tour!", {
+                position: "top-right",
+            });
+            if (err.response?.status === 401) {
+                toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!");
+                localStorage.removeItem("adminToken");
+                navigate("/loginadmin");
+            }
+            setTours([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const fetchUserDetails = async (userId) => {
         if (userCache[userId]) {
             return userCache[userId];
@@ -118,8 +156,9 @@ const Reviews = () => {
     };
 
     const fetchReviews = useCallback(
-        async (hotelId, page = 1, search = "", sortKey = "", sortValue = "") => {
-            if (!hotelId) return;
+        async (type, itemId, page = 1, search = "", sortKey = "", sortValue = "") => {
+            if (!itemId) return;
+            console.log("fetchReviews called with:", { type, itemId, page, search, sortKey, sortValue });
             setLoading(true);
             try {
                 const params = { page, limit: limitItems };
@@ -128,7 +167,13 @@ const Reviews = () => {
                     params.sortKey = sortKey;
                     params.sortValue = sortValue;
                 }
-                const response = await getHotelReviews(hotelId, params, adminToken);
+                
+                const response = type === "hotel" 
+                    ? await getHotelReviews(itemId, params, adminToken)
+                    : await getTourReviews(itemId, params, adminToken);
+                
+                console.log("fetchReviews response:", response);
+                    
                 if (response && Array.isArray(response.reviews)) {
                     const totalRecords = response.totalRecords || response.reviews.length;
                     const reviewsWithUsers = await Promise.all(
@@ -146,6 +191,7 @@ const Reviews = () => {
                                 userData,
                                 stt,
                                 viewed: !!viewedReviews[review._id],
+                                type: type
                             };
                         })
                     );
@@ -184,15 +230,17 @@ const Reviews = () => {
 
     const refreshReviews = useCallback(
         async (page = 1, searchQuery = "", sortKey = "", sortValue = "") => {
-            await fetchReviews(selectedHotel?._id, page, searchQuery, sortKey, sortValue);
+            const itemId = reviewType === "hotel" ? selectedHotel?._id : selectedTour?._id;
+            await fetchReviews(reviewType, itemId, page, searchQuery, sortKey, sortValue);
         },
-        [fetchReviews, selectedHotel]
+        [fetchReviews, reviewType, selectedHotel, selectedTour]
     );
 
     useEffect(() => {
         const token = adminToken || localStorage.getItem("adminToken");
         if (token) {
             fetchHotels();
+            fetchTours();
         } else {
             toast.error("Vui lòng đăng nhập để tiếp tục!", { position: "top-right" });
             setTimeout(() => {
@@ -201,21 +249,78 @@ const Reviews = () => {
         }
     }, [adminToken, navigate]);
 
+    // Auto-select first item when data is loaded
     useEffect(() => {
-        if (selectedHotel?._id) {
-            setReviews([]); // Reset reviews before fetching new ones
-            refreshReviews(currentPage, searchText);
+        if (reviewType === "hotel" && hotels.length > 0 && !selectedHotel) {
+            setSelectedHotel(hotels[0]);
+            console.log("Auto-selected first hotel:", hotels[0]);
         }
-    }, [selectedHotel, currentPage, refreshReviews, searchText]);
+    }, [hotels, reviewType, selectedHotel]);
+
+    useEffect(() => {
+        if (reviewType === "tour" && tours.length > 0 && !selectedTour) {
+            setSelectedTour(tours[0]);
+            console.log("Auto-selected first tour:", tours[0]);
+        }
+    }, [tours, reviewType, selectedTour]);
+
+    useEffect(() => {
+        const itemId = reviewType === "hotel" ? selectedHotel?._id : selectedTour?._id;
+        if (itemId) {
+            setReviews([]);
+            let sortKey = "";
+            let sortValue = "";
+            if (sortOption !== "stt_asc") {
+                // Parse sortOption if needed
+                const sortParts = sortOption.split("_");
+                if (sortParts.length === 2) {
+                    const field = sortParts[0];
+                    sortValue = sortParts[1];
+                    if (field === "stt") sortKey = "_id";
+                    else if (field === "username" || field === "email") sortKey = "user_id";
+                    else sortKey = field;
+                }
+            }
+            fetchReviews(reviewType, itemId, currentPage, searchText, sortKey, sortValue);
+        }
+    }, [selectedHotel, selectedTour, reviewType, currentPage, searchText, sortOption, fetchReviews]);
+
+    const handleReviewTypeChange = (event) => {
+        const type = event.target.value;
+        console.log("Switching review type to:", type);
+        setReviewType(type);
+        setReviews([]);
+        setCurrentPage(1);
+        setSearchText("");
+        
+        // Set default selection based on type
+        if (type === "hotel") {
+            if (hotels.length > 0) {
+                setSelectedHotel(hotels[0]);
+            }
+        } else if (type === "tour") {
+            if (tours.length > 0) {
+                setSelectedTour(tours[0]);
+            }
+        }
+    };
 
     const handleHotelChange = (event) => {
         const hotelId = event.target.value;
         const hotel = hotels.find((h) => h._id === hotelId) || null;
         setSelectedHotel(hotel);
-        setReviews([]); // Reset reviews when changing hotel
+        setReviews([]);
         setCurrentPage(1);
         setSearchText("");
-        refreshReviews(1, "");
+    };
+
+    const handleTourChange = (event) => {
+        const tourId = event.target.value;
+        const tour = tours.find((t) => t._id === tourId) || null;
+        setSelectedTour(tour);
+        setReviews([]);
+        setCurrentPage(1);
+        setSearchText("");
     };
 
     const handleSearch = async (e) => {
@@ -472,9 +577,12 @@ const Reviews = () => {
         refreshReviews(value, searchText, sortKey, sortValue);
     };
 
-    const handleDelete = async (reviewId) => {
+    const handleDelete = async (reviewId, type) => {
         try {
-            const response = await deleteReview(reviewId, adminToken);
+            const response = type === "hotel" 
+                ? await deleteReview(reviewId, adminToken)
+                : await deleteTourReview(reviewId, adminToken);
+                
             if (response.code === 200) {
                 refreshReviews(currentPage, searchText);
                 setViewedReviews((prev) => {
@@ -505,7 +613,8 @@ const Reviews = () => {
 
     const handleConfirmDelete = () => {
         if (reviewToDelete) {
-            handleDelete(reviewToDelete);
+            const review = reviews.find(r => r._id === reviewToDelete);
+            handleDelete(reviewToDelete, review?.type || reviewType);
             handleCloseDeleteModal();
         }
     };
@@ -549,6 +658,38 @@ const Reviews = () => {
             hide: isMobile,
             sortable: true,
             renderCell: ({ row }) => row.userData?.email || "N/A",
+        },
+        {
+            field: "service",
+            headerName: "Dịch vụ",
+            flex: isMobile ? 1 : 1.5,
+            sortable: false,
+            renderCell: ({ row }) => {
+                if (row.type === "hotel" || row.hotel_info) {
+                    return (
+                        <Box>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                                {row.hotel_info?.name || "N/A"}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                                Phòng: {row.room_info?.name || "N/A"}
+                            </Typography>
+                        </Box>
+                    );
+                } else if (row.type === "tour" || row.tour_info) {
+                    return (
+                        <Box>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                                {row.tour_info?.title || "N/A"}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                                Mã: {row.tour_info?.code || "N/A"}
+                            </Typography>
+                        </Box>
+                    );
+                }
+                return "N/A";
+            },
         },
         {
             field: "rating",
@@ -641,15 +782,15 @@ const Reviews = () => {
                     flexWrap={isMobile ? "wrap" : "nowrap"}
                 >
                     <Box display="flex" gap={2} flexWrap={isMobile ? "wrap" : "nowrap"} width={isMobile ? "100%" : "auto"}>
-                        <FormControl sx={{ minWidth: isMobile ? "100%" : 200 }}>
-                            <InputLabel id="hotel-select-label" sx={{ color: "black" }}>
-                                Chọn khách sạn
+                        <FormControl sx={{ minWidth: isMobile ? "100%" : 150 }}>
+                            <InputLabel id="review-type-label" sx={{ color: "black" }}>
+                                Loại dịch vụ
                             </InputLabel>
                             <Select
-                                labelId="hotel-select-label"
-                                value={selectedHotel?._id || ""}
-                                label="Chọn khách sạn"
-                                onChange={handleHotelChange}
+                                labelId="review-type-label"
+                                value={reviewType}
+                                label="Loại dịch vụ"
+                                onChange={handleReviewTypeChange}
                                 disabled={loading}
                                 sx={{
                                     backgroundColor: colors.primary[400],
@@ -668,18 +809,92 @@ const Reviews = () => {
                                     },
                                 }}
                             >
-                                {hotels.length === 0 && (
-                                    <MenuItem value="">
-                                        <em>{loading ? "Đang tải..." : "Không có khách sạn"}</em>
-                                    </MenuItem>
-                                )}
-                                {hotels.map((hotel) => (
-                                    <MenuItem key={hotel._id} value={hotel._id}>
-                                        {hotel.name}
-                                    </MenuItem>
-                                ))}
+                                <MenuItem value="hotel">Khách sạn</MenuItem>
+                                <MenuItem value="tour">Tour</MenuItem>
                             </Select>
                         </FormControl>
+                        
+                        {reviewType === "hotel" ? (
+                            <FormControl sx={{ minWidth: isMobile ? "100%" : 250 }}>
+                                <InputLabel id="hotel-select-label" sx={{ color: "black" }}>
+                                    Chọn khách sạn
+                                </InputLabel>
+                                <Select
+                                    labelId="hotel-select-label"
+                                    value={selectedHotel?._id || ""}
+                                    label="Chọn khách sạn"
+                                    onChange={handleHotelChange}
+                                    disabled={loading}
+                                    sx={{
+                                        backgroundColor: colors.primary[400],
+                                        color: colors.grey[100],
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: colors.grey[300],
+                                        },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: colors.grey[100],
+                                        },
+                                        "& .MuiSvgIcon-root": {
+                                            color: colors.grey[100],
+                                        },
+                                        "& .MuiInputBase-input": {
+                                            padding: "10px 14px",
+                                        },
+                                    }}
+                                >
+                                    {hotels.length === 0 && (
+                                        <MenuItem value="">
+                                            <em>{loading ? "Đang tải..." : "Không có khách sạn"}</em>
+                                        </MenuItem>
+                                    )}
+                                    {hotels.map((hotel) => (
+                                        <MenuItem key={hotel._id} value={hotel._id}>
+                                            {hotel.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        ) : (
+                            <FormControl sx={{ minWidth: isMobile ? "100%" : 250 }}>
+                                <InputLabel id="tour-select-label" sx={{ color: "black" }}>
+                                    Chọn tour
+                                </InputLabel>
+                                <Select
+                                    labelId="tour-select-label"
+                                    value={selectedTour?._id || ""}
+                                    label="Chọn tour"
+                                    onChange={handleTourChange}
+                                    disabled={loading}
+                                    sx={{
+                                        backgroundColor: colors.primary[400],
+                                        color: colors.grey[100],
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: colors.grey[300],
+                                        },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: colors.grey[100],
+                                        },
+                                        "& .MuiSvgIcon-root": {
+                                            color: colors.grey[100],
+                                        },
+                                        "& .MuiInputBase-input": {
+                                            padding: "10px 14px",
+                                        },
+                                    }}
+                                >
+                                    {tours.length === 0 && (
+                                        <MenuItem value="">
+                                            <em>{loading ? "Đang tải..." : "Không có tour"}</em>
+                                        </MenuItem>
+                                    )}
+                                    {tours.map((tour) => (
+                                        <MenuItem key={tour._id} value={tour._id}>
+                                            {tour.title} - {tour.code}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        )}
                     </Box>
                     <Box display="flex" gap={2} flexWrap={isMobile ? "wrap" : "nowrap"} width={isMobile ? "100%" : "auto"}>
                         <FormControl sx={{ minWidth: isMobile ? "100%" : 200 }}>
@@ -797,9 +1012,11 @@ const Reviews = () => {
                             <Box display="flex" justifyContent="center" alignItems="center" height="100%">
                                 <CircularProgress />
                             </Box>
-                        ) : hotels.length === 0 ? (
+                        ) : (reviewType === "hotel" ? hotels.length === 0 : tours.length === 0) ? (
                             <Box textAlign="center" mt={4}>
-                                <Typography variant="h6">Không có khách sạn nào để hiển thị</Typography>
+                                <Typography variant="h6">
+                                    Không có {reviewType === "hotel" ? "khách sạn" : "tour"} nào để hiển thị
+                                </Typography>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -809,9 +1026,9 @@ const Reviews = () => {
                                     Đăng nhập lại
                                 </Button>
                             </Box>
-                        ) : !selectedHotel?._id ? (
+                        ) : (reviewType === "hotel" ? !selectedHotel?._id : !selectedTour?._id) ? (
                             <Typography variant="h6" align="center" mt={4}>
-                                Vui lòng chọn một khách sạn để xem đánh giá
+                                Vui lòng chọn một {reviewType === "hotel" ? "khách sạn" : "tour"} để xem đánh giá
                             </Typography>
                         ) : reviews.length === 0 ? (
                             <Typography variant="h6" align="center" mt={4}>
@@ -860,6 +1077,26 @@ const Reviews = () => {
                             <Typography variant="body1" sx={{ mb: 1 }}>
                                 <strong>Email:</strong> {selectedReview.userData?.email || "N/A"}
                             </Typography>
+                            {(selectedReview.type === "hotel" || selectedReview.hotel_info) && (
+                                <>
+                                    <Typography variant="body1" sx={{ mb: 1 }}>
+                                        <strong>Khách sạn:</strong> {selectedReview.hotel_info?.name || "N/A"}
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ mb: 1 }}>
+                                        <strong>Phòng:</strong> {selectedReview.room_info?.name || "N/A"}
+                                    </Typography>
+                                </>
+                            )}
+                            {(selectedReview.type === "tour" || selectedReview.tour_info) && (
+                                <>
+                                    <Typography variant="body1" sx={{ mb: 1 }}>
+                                        <strong>Tour:</strong> {selectedReview.tour_info?.title || "N/A"}
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ mb: 1 }}>
+                                        <strong>Mã tour:</strong> {selectedReview.tour_info?.code || "N/A"}
+                                    </Typography>
+                                </>
+                            )}
                             <Typography variant="body1" sx={{ mb: 1 }}>
                                 <strong>Điểm đánh giá:</strong> {selectedReview.rating || 0}/5
                             </Typography>

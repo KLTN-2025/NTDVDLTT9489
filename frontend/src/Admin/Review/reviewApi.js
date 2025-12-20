@@ -63,3 +63,46 @@ export const deleteReview = async (reviewId, adminToken) => {
         throw err;
     }
 };
+
+// Lấy danh sách tours
+export const getTours = async (adminToken) => {
+    try {
+        const api = createApiInstance(adminToken);
+        const response = await api.get("/api/v1/admin/tours");
+        // console.log("getTours response:", JSON.stringify(response.data, null, 2));
+        // API returns toursObject instead of tours
+        return {
+            code: 200,
+            tours: response.data.toursObject || []
+        };
+    } catch (err) {
+        console.error("getTours error:", err.response?.data || err);
+        throw err;
+    }
+};
+
+// Lấy danh sách đánh giá của tour
+export const getTourReviews = async (tourId, params, adminToken) => {
+    try {
+        const api = createApiInstance(adminToken);
+        const response = await api.get(`/api/v1/admin/tour-reviews/${tourId}`, { params });
+        // console.log("getTourReviews response:", JSON.stringify(response.data, null, 2));
+        return response.data;
+    } catch (err) {
+        console.error("getTourReviews error:", JSON.stringify(err.response?.data, null, 2));
+        throw err;
+    }
+};
+
+// Xóa đánh giá tour
+export const deleteTourReview = async (reviewId, adminToken) => {
+    try {
+        const api = createApiInstance(adminToken);
+        const response = await api.delete(`/api/v1/admin/tour-reviews/delete/${reviewId}`);
+        // console.log("deleteTourReview response:", JSON.stringify(response.data, null, 2));
+        return response.data;
+    } catch (err) {
+        console.error("deleteTourReview error:", JSON.stringify(err.response?.data, null, 2));
+        throw err;
+    }
+};

@@ -37,6 +37,7 @@ import {
 } from "./VoucherApi";
 import { useAdminAuth } from "../../context/AdminContext";
 import { useNavigate } from "react-router-dom";
+import PermissionGuard from "../../components/PermissionGuard/PermissionGuard";
 
 const VoucherControl = () => {
     const theme = useTheme();
@@ -676,39 +677,54 @@ const VoucherControl = () => {
             flex: 2,
             renderCell: (params) => (
                 <Box display="flex" gap={1} mt="25px">
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        startIcon={<VisibilityIcon />}
-                        onClick={() => handleOpenDetail(params.row)}
+                    <PermissionGuard 
+                        permission="voucher_view"
+                        tooltipMessage="Bạn không có quyền xem chi tiết voucher"
                     >
-                        Xem
-                    </Button>
-                    <Button
-                        variant="contained"
-                        sx={{
-                            backgroundColor: colors.blueAccent[300],
-                            color: "white",
-                            "&:hover": {
-                                backgroundColor: colors.blueAccent[200],
-                            },
-                        }}
-                        size="small"
-                        startIcon={<EditIcon />}
-                        onClick={() => handleEdit(params.row)}
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            startIcon={<VisibilityIcon />}
+                            onClick={() => handleOpenDetail(params.row)}
+                        >
+                            Xem
+                        </Button>
+                    </PermissionGuard>
+                    <PermissionGuard 
+                        permission="voucher_edit"
+                        tooltipMessage="Bạn không có quyền chỉnh sửa voucher"
                     >
-                        Sửa
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        size="small"
-                        startIcon={<DeleteIcon />}
-                        onClick={() => handleOpenDeleteConfirm(params.row._id)}
+                        <Button
+                            variant="contained"
+                            sx={{
+                                backgroundColor: colors.blueAccent[300],
+                                color: "white",
+                                "&:hover": {
+                                    backgroundColor: colors.blueAccent[200],
+                                },
+                            }}
+                            size="small"
+                            startIcon={<EditIcon />}
+                            onClick={() => handleEdit(params.row)}
+                        >
+                            Sửa
+                        </Button>
+                    </PermissionGuard>
+                    <PermissionGuard 
+                        permission="voucher_delete"
+                        tooltipMessage="Bạn không có quyền xóa voucher"
                     >
-                        Xóa
-                    </Button>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => handleOpenDeleteConfirm(params.row._id)}
+                        >
+                            Xóa
+                        </Button>
+                    </PermissionGuard>
                 </Box>
             ),
         },
@@ -781,14 +797,19 @@ const VoucherControl = () => {
                                     {isSearching ? <CircularProgress size={24} /> : <SearchIcon />}
                                 </IconButton>
                             </Paper>
-                            <Button
-                                variant="contained"
-                                color="success"
-                                startIcon={<AddIcon />}
-                                onClick={handleOpen}
+                            <PermissionGuard 
+                                permission="voucher_create"
+                                hideIfNoPermission={true}
                             >
-                                Thêm mới voucher
-                            </Button>
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    startIcon={<AddIcon />}
+                                    onClick={handleOpen}
+                                >
+                                    Thêm mới voucher
+                                </Button>
+                            </PermissionGuard>
                         </Box>
                     </Box>
                 </Box>

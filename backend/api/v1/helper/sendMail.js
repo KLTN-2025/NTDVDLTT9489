@@ -9,7 +9,7 @@ module.exports.sendMail = (email, subject, html) => {
     });
 
     const mailOptions = {
-        from: 'chiphansonzz17@gmail.com',
+        from: 'chelinhgithub25@gmail.com',
         to: email,
         subject: subject,
         html: html
@@ -35,7 +35,7 @@ module.exports.feedbackMail = (email, subject, html) => {
 
     const mailOptions = {
         from: email,
-        to: 'chiphansonzz17@gmail.com',
+        to: 'chelinhgithub25@gmail.com',
         subject: subject,
         html: html
     };
